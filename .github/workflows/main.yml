@@ -7,6 +7,12 @@ on:
         description: 'States to collect files'
         required: false
         default: 'SP'  
+      start_date:
+        description: 'Start date (YYYY-MM-DD)'
+        required: false
+      end_date:
+        description: 'End date (YYYY-MM-DD)'
+        required: false        
   schedule:
     - cron:  '0 8 2,3 * *'
     
