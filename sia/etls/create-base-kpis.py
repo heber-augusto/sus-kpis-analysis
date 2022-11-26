@@ -27,7 +27,7 @@ def get_files(state, year, month, file_type, file_group):
     initial_path = input_dir
     internal_folder = f"""{state}/{year}/{month}/{file_type}/{file_group}"""
     glob_filter = f"{initial_path}/{internal_folder}/*.parquet.gzip"
-    print(f'glob_filter: {glob_filter})
+    print(f'glob_filter: {glob_filter}')
     return glob.glob(glob_filter)
 
 # SIA PA, AQ e AR: Leitura, filtro e transformação inicial dos arquivos
