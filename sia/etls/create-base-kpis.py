@@ -153,7 +153,7 @@ def get_file_paths(state, list_of_dates, file_type, file_group):
     file_paths = []
     for dt in list_of_dates:
         year = dt.year
-        month = dt.month}        
+        month = dt.month        
         file_paths.extend(
             get_files(
                 state,
@@ -165,18 +165,12 @@ def get_file_paths(state, list_of_dates, file_type, file_group):
     return file_paths
 
 ## SIA PA: Leitura e união de dados para o período desejado
-### Anos e meses a serem lidos e processados
-start_year = 2008
-end_year = date.today().year
-years  = [f'{year + 2008:02d}' for year in range(end_year - start_year + 1)]
-months = [f'{month + 1:02d}' for month in range(12)]
 file_type = 'SIA'
 
 for state in states:
     print(f'processing files from {state}')
     ### Monta lista de arquivos a serem lidos
     file_paths_by_type = {}
-    year = dt.year
 
     # Arquivos de produção ambulatorial
     file_paths_by_type['PA'] = get_file_paths(
@@ -220,15 +214,15 @@ for state in states:
     destination_folder = f"""{output_dir}/{state}/consolidado/"""
     
     cancer_dataframe_pa.to_parquet(
-        f'{destination_folder}cancer_pa.parquet.gzip', 
+        f'{destination_folder}cancer_pa_copy.parquet.gzip', 
         compression='gzip')
 
     cancer_dataframe_aq.to_parquet(
-        f'{destination_folder}cancer_aq.parquet.gzip', 
+        f'{destination_folder}cancer_aq_copy.parquet.gzip', 
         compression='gzip')
 
     cancer_dataframe_ar.to_parquet(
-        f'{destination_folder}cancer_ar.parquet.gzip', 
+        f'{destination_folder}cancer_ar_copy.parquet.gzip', 
         compression='gzip')
 
     # Montagem do dataset cancer, consolidando procedimentos
@@ -278,7 +272,7 @@ for state in states:
     
     ## Cria arquivo de registros de procedimentos (radioterapia e quimioterapia)
     cancer_dataframe.to_parquet(
-        f'{destination_folder}cancer.parquet.gzip', 
+        f'{destination_folder}cancer_copy.parquet.gzip', 
         compression='gzip')
     
     
