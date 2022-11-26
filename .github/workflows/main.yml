@@ -48,8 +48,8 @@ jobs:
           export INPUT_DIR=${{ github.workspace }}/output-files/monitor        
           export OUTPUT_DIR=${{ github.workspace }}/output-files/monitor
           export TEMP_DIR=${{ github.workspace }}/temp-files          
-          
-          pip3 install -r ../requirements.txt
+
+          pip3 install -r ./requirements.txt
           export STATES=${{ github.event.inputs.states}}
           python3 ./create-base-kpis.py
 
