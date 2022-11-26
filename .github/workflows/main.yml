@@ -45,6 +45,7 @@ jobs:
       - name: Prepare permissions, scripts and call script to collect files
         working-directory: ./sia/etls
         run: |
+          export INPUT_DIR=${{ github.workspace }}/output-files/monitor        
           export OUTPUT_DIR=${{ github.workspace }}/output-files/monitor
           export TEMP_DIR=${{ github.workspace }}/temp-files          
           
