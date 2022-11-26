@@ -10,6 +10,9 @@ import os
 home_dir = os.path.expanduser('~')
 print(home_dir)
 
+input_dir = os.getenv('INPUT_DIR', os.path.join(home_dir,'input-files'))
+print(input_dir)
+
 output_dir = os.getenv('OUTPUT_DIR', os.path.join(home_dir,'output-files'))
 print(output_dir)
 
@@ -20,9 +23,8 @@ states   = os.getenv('STATES', ['SP',])
 print(states)
 
 def get_files(state, year, month, file_type, file_group):
-    initial_path = os.path.join(r'/content/',local_folder_name,project_folder_name)
+    initial_path = input_dir
     internal_folder = f"""{state}/{year}/{month}/{file_type}/{file_group}"""
-    # print(f"{initial_path}/{internal_folder}/*.parquet.gzip")
     return glob.glob(f"{initial_path}/{internal_folder}/*.parquet.gzip")
 
 # SIA PA, AQ e AR: Leitura, filtro e transformação inicial dos arquivos
