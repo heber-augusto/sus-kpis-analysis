@@ -420,7 +420,7 @@ for state in states:
             )\
         .reset_index()    
     
-        dados_estad_mensal.to_parquet(
-            f'dados_estad_mensal_copy.parquet.gzip', 
-            compression='gzip')    
+    dados_estad_mensal.to_parquet(
+        f'dados_estad_mensal_copy.parquet.gzip', 
+        compression='gzip')    
     
