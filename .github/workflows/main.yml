@@ -2,6 +2,11 @@ name: Update analisys datasets
 run-name: ${{ github.actor }} is updating analysis datasets 🚀
 on: 
   workflow_dispatch:
+    inputs:  
+      states:
+        description: 'States to collect files'
+        required: false
+        default: 'SP'  
   schedule:
     - cron:  '0 8 2,3 * *'
     
