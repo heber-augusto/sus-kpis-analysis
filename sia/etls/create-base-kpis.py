@@ -286,3 +286,141 @@ for state in states:
     new_cancer_dataframe.to_parquet(
         f'{destination_folder}cancer_copy.parquet.gzip', 
         compression='gzip')
+    
+    # Montagem do dataset de Exames de Paciente (1 linha por paciente)
+
+    #Colunas:
+
+    # - Chave da paciente (cns_encrypted)
+    # - Custo total do tratamento
+    # - Estadiamento inicial
+    # - Estadiamento final
+    # - Indicação de óbito
+    # - Localização de moradia
+
+    ## Proposta de solução:
+
+    # - Tipos de arquivos a serem utilizados: AQ e AR
+    # - chave do paciente:
+    #  - AQ: coluna AP_CNSPCN
+    #  - AR: coluna AP_CNSPCN  
+    # - custo total do tratamento: será uma estimativa considerando apenas radioterapia e quimioterapia, calculado somando os valores dos procedimentos (presentes em AR e AQ), para cada chave de paciente. Sendo:
+    #   - custos em AQ: soma de AP_VL_AP;
+    #   - custos em AR: soma de AP_VL_AP.
+    # - Estadiamento inicial: calculado utilizando o valor do estadiamento (presentes em AQ:AQ_ESTADI e AR:AR_ESTADI) do registro mais antigo de radioterapia ou quimioterapia, de um determinado paciente;
+    # - Estadiamento final: calculado utilizando o valor do estadiamento (presentes em AQ:AQ_ESTADI e AR:AR_ESTADI) do registro mais recente de radioterapia ou quimioterapia, de um determinado paciente;
+    # - Localização de moradia: utilizar coluna AP_MUNPCN (presentes em AR e AQ). Talvez criar dois campos, AP_MUNPCN presente no registro mais antigo e AP_MUNPCN presente no registro mais novo;
+    # - Indicação de óbito: valor máximo do campo AP_OBITO, presente em AQ e AR (0: sem indicação e 1:com indicação de óbito) O valor 1 indicará óbito.    
+    
+    ## Cálculo dos valores considerando apenas AQ e AR
+    df_paciente = new_cancer_dataframe\
+        .sort_values(by=['data'], ascending=True)\
+        .groupby(['paciente'])\
+        .agg(
+            data_primeiro_estadiamento=('data', 'first'),         
+            data_ultimo_estadiamento=('data', 'last'),                  
+            primeiro_estadiamento=('estadiamento', 'first'), 
+            maior_estadiamento=('estadiamento', 'max'),
+            ultimo_estadiamento=('estadiamento', 'last'),
+            custo_total=('custo', 'sum'),
+            primeiro_municipio=('municipio', 'first'), 
+            ultimo_municipio=('municipio', 'last'),
+            indicacao_obito=('obito', 'max'),
+            )\
+        .reset_index()
+
+    df_paciente.to_parquet(
+        f'{destination_folder}pacientes_copy.parquet.gzip', 
+        compression='gzip')
+    
+    # Montagem do dataset de Procedimentos com dados consolidados Paciente (1 linha por procedimento)
+
+    # Colunas:
+
+    #  - data: data do procedimento;
+    #  - paciente: código do paciente; 
+    #  - estadiamento: estadiamento anotado no procedimento;
+    #  - custo: custo do procedimento;
+    #  - municipio: municipio do estadiamento;
+    #  - obito: anotação de óbito no procedimento;
+    #  - tipo: tipo de procedimento (ar - radioterapia ou aq - quimioterapia)
+    #  **dados consolidados de todos os procedimentos do paciente**
+    #  - data_primeiro_estadiamento: data do primeiro procedimento do paciente;
+    #  - data_ultimo_estadiamento: data do último procedimento do paciente;
+    #  - primeiro_estadiamento: primeiro estadiamento identificado no paciente;
+    #  - maior_estadiamento: maior estadiamento identificado no paciente;
+    #  - ultimo_estadiamento: ultimo estadiamento identificado no paciente;
+    #  - custo_total: custo total dos procedimentos do paciente;
+    #  - primeiro_municipio: municipio do primeiro procedimento do paciente;
+    #  - ultimo_municipio: municipio do último procedimento do paciente;
+    #  - indicacao_obito: indica se o paciente tem marcação de obito em algum procedimento.
+    procedimentos_e_pacientes = pd.merge(
+        new_cancer_dataframe, 
+        df_paciente,
+        on='paciente',
+        how="outer") 
+    
+    procedimentos_e_pacientes.to_parquet(
+        f'{destination_folder}procedimentos_e_pacientes_copy.parquet.gzip', 
+        compression='gzip')
+    
+    # Criação de dataset de consolidando dados de pacientes por estadiamento/municipio/mês
+
+    # Colunas:
+
+    #  - data: mês do procedimento;
+    #  - municipio: municipio do procedimento;
+    #  - primeiro_estadiamento: estadiamento no primeiro procedimento do paciente (teoricamente, informa diagnostico precoce ou tardio);
+    #  - custo_estadiamento: soma dos custos dos procedimentos para um dado mes/municipio/estadiamento;
+    #  - numero_pacientes: número de pacientes no mes/municipio/estadiamento;
+    #  - obtitos: número de obitos no mes/municipio/estadiamento;
+    #  - obito_futuro: pacientes com anotação de obito no futuro;
+    #  - numero_procedimentos: número de procedimentos realizados no mes/municipio/estadiamento;     
+
+    dados_estad_municipio_mensal = procedimentos_e_pacientes\
+        .sort_values(by=['data'], ascending=True)\
+        .groupby(['data', 'municipio','primeiro_estadiamento'])\
+        .agg(
+            custo_estadiamento=('custo', 'sum'),
+            numero_pacientes=('paciente', 'nunique'), 
+            obtitos=('obito', 'sum'),
+            obito_futuro=('indicacao_obito', 'sum'),
+            numero_procedimentos=('data','count')
+            )\
+        .reset_index()  
+
+    dados_estad_municipio_mensal.to_parquet(
+        f'{destination_folder}dados_estad_municipio_mensal_copy.parquet.gzip', 
+        compression='gzip')
+    
+    
+    # Criação de dataset de consolidando dados de pacientes por estadiamento/mês
+
+    # Colunas:
+
+    #  - data: mês do procedimento;
+    #  - primeiro_estadiamento: estadiamento no primeiro procedimento do paciente (teoricamente, informa diagnostico precoce ou tardio);
+    #  - numero_municipios: municipios com procedimentos mes/estadiamento;  
+    #  - custo_estadiamento: soma dos custos dos procedimentos para um dado mes/estadiamento;
+    #  - numero_pacientes: número de pacientes no mes/estadiamento;
+    #  - obtitos: número de obitos no mes/estadiamento;
+    #  - obito_futuro: pacientes com anotação de obito no futuro;
+    #  - numero_procedimentos: número de procedimentos realizados no mes/estadiamento.     
+    
+    dados_estad_mensal = dados_estad_municipio_mensal\
+        .sort_values(by=['data'], ascending=True)\
+        .groupby(['data', 'primeiro_estadiamento'])\
+        .agg(
+            custo_estadiamento=('custo_estadiamento', 'sum'),
+            numero_pacientes=('numero_pacientes', 'sum'),         
+            numero_municipios=('municipio', 'nunique'), 
+            obtitos=('obtitos', 'sum'),
+            obito_futuro=('obito_futuro', 'sum'),
+            numero_procedimentos=('numero_procedimentos','sum')
+            )\
+        .reset_index()    
+    
+        dados_estad_mensal.to_parquet(
+            f'dados_estad_mensal_copy.parquet.gzip', 
+            compression='gzip')    
+    
