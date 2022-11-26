@@ -20,7 +20,7 @@ print(output_dir)
 temp_dir   = os.getenv('TEMP_DIR', os.path.join(home_dir,'temp-files'))
 print(temp_dir)
 
-states   = os.getenv('STATES', 'SP'])
+states   = os.getenv('STATES', 'SP')
 if states == '':
     states = 'SP'
 states = states.split(',')
