@@ -58,10 +58,13 @@ jobs:
         run: |
           export INPUT_DIR=${{ github.workspace }}/output-files/monitor        
           export OUTPUT_DIR=${{ github.workspace }}/output-files/monitor
-          export TEMP_DIR=${{ github.workspace }}/temp-files          
+          export TEMP_DIR=${{ github.workspace }}/temp-files  
+
+          export STATES=${{ github.event.inputs.states}}
+          export START_DATE=${{ github.event.inputs.start_date}}
+          export END_DATE=${{ github.event.inputs.end_date}}  
 
           pip3 install -r ./requirements.txt
-          export STATES=${{ github.event.inputs.states}}
           python3 ./create-base-kpis.py
 
       - run: echo "🍏 This job's status is ${{ job.status }}."      
