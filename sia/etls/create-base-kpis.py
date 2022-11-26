@@ -56,7 +56,7 @@ print(f'reading files between {strt_dt} and {end_dt} from states {states}')
 
 def get_files(state, year, month, file_type, file_group):
     initial_path = input_dir
-    internal_folder = f"""{state}/{year}/{month}/{file_type}/{file_group}"""
+    internal_folder = f"""{state}/{year}/{month:02d}/{file_type}/{file_group}"""
     glob_filter = f"{initial_path}/{internal_folder}/*.parquet.gzip"
     print(f'glob_filter: {glob_filter}')
     return glob.glob(glob_filter)
