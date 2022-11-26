@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MONTHLY
 
-DEF_START_DATE = (date.today() + relativedelta(months=-5))
+DEF_START_DATE = (date.today() + relativedelta(months=-6))
 DEF_END_DATE = (date.today() + relativedelta(months=-1))
 
 ## Definições globais
@@ -271,15 +271,18 @@ for state in states:
           renamed_ar
         ], 
         ignore_index=True)
-    cancer_dataframe    
+    
+    current_cancer_dataframe = pd.read_parquet(
+        f'{destination_folder}cancer.parquet.gzip')
+
+    new_cancer_dataframe = (
+        pd.concat([current_cancer_dataframe, cancer_dataframe])
+        .drop_duplicates(keep='last')
+        .sort_values('data', ascending=False)
+        .reset_index(drop=True))    
+    
     
     ## Cria arquivo de registros de procedimentos (radioterapia e quimioterapia)
-    cancer_dataframe.to_parquet(
+    new_cancer_dataframe.to_parquet(
         f'{destination_folder}cancer_copy.parquet.gzip', 
         compression='gzip')
-    
-    
-    
-    
-    
-    
