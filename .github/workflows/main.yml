@@ -1,0 +1,55 @@
+name: Update analisys datasets
+run-name: ${{ github.actor }} is updating analysis datasets 🚀
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 8 2,3 * *'
+    
+jobs:
+  Update-Datasets:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: 'google-auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.gcp_credentials }}'
+      - name: Create output and temp dir
+        run: |  
+          export OUTPUT_DIR=${{ github.workspace }}/output-files
+          export TEMP_DIR=${{ github.workspace }}/temp-files          
+          mkdir ${OUTPUT_DIR}
+          mkdir ${TEMP_DIR}
+      - name: 'install gcsfuse to access bucket'
+        run: |
+          export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
+          echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+          sudo apt-get update
+          sudo apt-get install gcsfuse
+          sudo groupadd fuse
+          sudo usermod -a -G fuse $USER
+          sudo chown $USER_ID:fuse ${{ github.workspace }}/output-files
+          
+          gcsfuse --dir-mode=777 --file-mode=777 --key-file=$GOOGLE_APPLICATION_CREDENTIALS --implicit-dirs observatorio-oncologia ${{ github.workspace }}/output-files
+          
+      - name: Prepare permissions, scripts and call script to collect files
+        working-directory: ./sia/etls
+        run: |
+          export OUTPUT_DIR=${{ github.workspace }}/output-files/monitor
+          export TEMP_DIR=${{ github.workspace }}/temp-files          
+          
+          pip3 install -r ../requirements.txt
+          export STATES=${{ github.event.inputs.states}}
+          python3 ./create-base-kpis.py
+
+      - run: echo "🍏 This job's status is ${{ job.status }}."      
