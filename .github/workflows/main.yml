@@ -14,7 +14,7 @@ on:
         description: 'End date (YYYY-MM-DD)'
         required: false        
   schedule:
-    - cron:  '0 8 2,3 * *'
+    - cron:  '0 8 3 * *'
     
 jobs:
   Update-Datasets:
