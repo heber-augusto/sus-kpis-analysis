@@ -5,7 +5,12 @@ import os
 import pandas as pd
 import numpy as np 
 import os
-import datetime
+from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
+from dateutil.rrule import rrule, MONTHLY
+
+DEF_START_DATE = (date.today() + relativedelta(months=-5))
+DEF_END_DATE = (date.today() + relativedelta(months=-1))
 
 ## Definições globais
 home_dir = os.path.expanduser('~')
@@ -20,11 +25,31 @@ print(output_dir)
 temp_dir   = os.getenv('TEMP_DIR', os.path.join(home_dir,'temp-files'))
 print(temp_dir)
 
-states   = os.getenv('STATES', 'SP')
-if states == '':
-    states = 'SP'
-states = states.split(',')
-print(states)
+START_DATE = (os.getenv('START_DATE', DEF_START_DATE.strftime('%Y-%m-%d')))
+END_DATE = (os.getenv('END_DATE', DEF_END_DATE.strftime('%Y-%m-%d')))
+STATES = (os.getenv('STATES', 'SP'))
+
+# validate start date
+try:
+    strt_dt = datetime.strptime(START_DATE,'%Y-%m-%d')
+except ValueError:
+    strt_dt = DEF_START_DATE                
+    pass
+# validate end date
+try:
+    end_dt = datetime.strptime(END_DATE,'%Y-%m-%d')
+except ValueError:
+    end_dt = DEF_END_DATE                
+    pass
+
+# validate states
+if STATES == '':
+    states = ['SP',]
+else:
+    states = STATES.split(',')
+
+list_of_dates = [dt for dt in rrule(MONTHLY, dtstart=strt_dt, until=end_dt)]
+
 
 def get_files(state, year, month, file_type, file_group):
     initial_path = input_dir
@@ -121,41 +146,42 @@ def create_cancer_dataframe(file_paths, filter_function=filter_pa_content):
         ignore_index=True)
 
 ## Função para retornar lista de arquivos (caminho completo)
-def get_file_paths(state, years, months, file_type, file_group):
+def get_file_paths(state, list_of_dates, file_type, file_group):
     """
 
     """
     file_paths = []
-    for year in years:
-        for month in months:
-            file_paths.extend(
-                get_files(
-                    state,
-                    year,
-                    month,
-                    file_type,
-                    file_group)
-            )
+    for dt in list_of_dates:
+        year = dt.year
+        month = dt.month}        
+        file_paths.extend(
+            get_files(
+                state,
+                year,
+                month,
+                file_type,
+                file_group)
+        )
     return file_paths
 
 ## SIA PA: Leitura e união de dados para o período desejado
 ### Anos e meses a serem lidos e processados
 start_year = 2008
-end_year = datetime.date.today().year
+end_year = date.today().year
 years  = [f'{year + 2008:02d}' for year in range(end_year - start_year + 1)]
 months = [f'{month + 1:02d}' for month in range(12)]
 file_type = 'SIA'
 
 for state in states:
-    print('processing files from SP')
+    print(f'processing files from {state}')
     ### Monta lista de arquivos a serem lidos
     file_paths_by_type = {}
+    year = dt.year
 
     # Arquivos de produção ambulatorial
     file_paths_by_type['PA'] = get_file_paths(
         state,
-        years,
-        months,
+        list_of_dates,
         file_type,
         'PA'
     )
@@ -163,8 +189,7 @@ for state in states:
     # Arquivos de radioterapia
     file_paths_by_type['AR'] = get_file_paths(
         state,
-        years,
-        months,
+        list_of_dates,
         file_type,
         'AR'
     )
@@ -172,8 +197,7 @@ for state in states:
     # Arquivos de quimioteraia
     file_paths_by_type['AQ'] = get_file_paths(
         state,
-        years,
-        months,
+        list_of_dates,
         file_type,
         'AQ'
     )
@@ -207,4 +231,58 @@ for state in states:
         f'{destination_folder}cancer_ar.parquet.gzip', 
         compression='gzip')
 
+    # Montagem do dataset cancer, consolidando procedimentos
 
+    # Este dataset consolida registros dois tipos de procedimentos (AQ e AR)
+
+    #Possui as seguintes colunas:
+
+    #- data: valores da coluna **AP_CMP** (AR e AQ);
+    #- paciente (cns_encrypted): valores da coluna **AP_CNSPCN** (AR e AQ);
+    #- estadiamento: valores dascolunas **AQ_ESTADI** (AQ) e **AR_ESTADI** (AR);
+    #- custo: valores da coluna **AP_VL_AP** (AQ ou AR) convertido para double;
+    #- municipio: valores da coluna **AP_MUNPCN** (AQ ou AR);
+    #- obito: valores da coluna **AP_OBITO** (AQ ou AR), convertido para inteiro;
+    #- tipo: tipo de procedimento ('ar' ou 'aq').
+    
+    ## Transformação dos tipos das colunas 
+    #- custo (AP_VL_AP) em double
+    #- Indicação de óbito (AP_OBITO) em inteiro.    
+    
+    cancer_dataframe_aq['custo'] = cancer_dataframe_aq['AP_VL_AP'].astype(np.double)
+    cancer_dataframe_ar['custo'] = cancer_dataframe_ar['AP_VL_AP'].astype(np.double)
+    cancer_dataframe_aq['obito'] = cancer_dataframe_aq['AP_OBITO'].astype(np.integer)
+    cancer_dataframe_ar['obito'] = cancer_dataframe_ar['AP_OBITO'].astype(np.integer)
+    
+    ## União entre AQ e AR
+    columns_aq = ['AP_CMP', 'AP_CNSPCN', 'AQ_ESTADI', 'custo', 'AP_MUNPCN', 'obito']
+    columns_ar = ['AP_CMP', 'AP_CNSPCN', 'AR_ESTADI', 'custo', 'AP_MUNPCN', 'obito']
+
+    normalized_columns = ['data','paciente','estadiamento', 'custo', 'municipio', 'obito']
+
+    renamed_aq = cancer_dataframe_aq[columns_aq]
+    renamed_aq.columns = normalized_columns
+    renamed_aq['tipo'] = 'aq'
+
+    renamed_ar = cancer_dataframe_ar[columns_ar]
+    renamed_ar.columns = normalized_columns
+    renamed_ar['tipo'] = 'ar'
+
+    cancer_dataframe = pd.concat(
+        [
+          renamed_aq, 
+          renamed_ar
+        ], 
+        ignore_index=True)
+    cancer_dataframe    
+    
+    ## Cria arquivo de registros de procedimentos (radioterapia e quimioterapia)
+    cancer_dataframe.to_parquet(
+        f'{destination_folder}cancer.parquet.gzip', 
+        compression='gzip')
+    
+    
+    
+    
+    
+    
