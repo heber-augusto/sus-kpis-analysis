@@ -16,8 +16,8 @@ print(output_dir)
 temp_dir   = os.getenv('TEMP_DIR', os.path.join(home_dir,'temp-files'))
 print(temp_dir)
 
-state   = os.getenv('STATE', 'SP')
-print(state)
+states   = os.getenv('STATES', ['SP',])
+print(states)
 
 def get_files(state, year, month, file_type, file_group):
     initial_path = os.path.join(r'/content/',local_folder_name,project_folder_name)
@@ -132,9 +132,7 @@ def get_file_paths(states, years, months, file_type, file_group):
     return file_paths
 
 ## SIA PA: Leitura e união de dados para o período desejado
-### Estado, anos e meses a serem lidos e processados
-
-states = [state,]
+### Anos e meses a serem lidos e processados
 start_year = 2008
 end_year = datetime.date.today().year
 years  = [f'{year + 2008:02d}' for year in range(end_year - start_year + 1)]
