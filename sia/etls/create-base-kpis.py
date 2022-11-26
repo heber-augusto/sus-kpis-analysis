@@ -421,6 +421,6 @@ for state in states:
         .reset_index()    
     
     dados_estad_mensal.to_parquet(
-        f'dados_estad_mensal_copy.parquet.gzip', 
+        f'{destination_folder}dados_estad_mensal_copy.parquet.gzip', 
         compression='gzip')    
     
