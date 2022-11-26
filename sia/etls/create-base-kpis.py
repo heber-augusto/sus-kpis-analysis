@@ -61,6 +61,25 @@ def get_files(state, year, month, file_type, file_group):
     print(f'glob_filter: {glob_filter}')
     return glob.glob(glob_filter)
 
+def load_and_update_new_data(current_df_path, new_data, updated_df_path):
+    current_dataframe = pd.read_parquet(
+        current_df_path)
+
+    new_df = (
+        pd.concat([current_dataframe, new_data])
+        .drop_duplicates(keep='last')
+        .sort_values('data', ascending=False)
+        .reset_index(drop=True))    
+    
+    
+    ## Cria arquivo de registros de procedimentos (radioterapia e quimioterapia)
+    new_df.to_parquet(
+        updated_df_path, 
+        compression='gzip')
+    
+    return new_df
+
+
 # SIA PA, AQ e AR: Leitura, filtro e transformação inicial dos arquivos
 
 ## Informações sobre filtros pertinentes ao contexto de câncer de mama:
@@ -215,18 +234,21 @@ for state in states:
     cancer_dataframe_ar = create_cancer_dataframe(file_paths_by_type['AR'], filter_function=filter_aq_content)
 
     destination_folder = f"""{output_dir}/{state}/consolidado/"""
+
+    cancer_dataframe_pa = load_and_update_new_data(
+        current_df_path=f'{destination_folder}cancer_pa.parquet.gzip', 
+        new_data=cancer_dataframe_pa, 
+        updated_df_path=f'{destination_folder}cancer_pa_copy.parquet.gzip')
     
-    cancer_dataframe_pa.to_parquet(
-        f'{destination_folder}cancer_pa_copy.parquet.gzip', 
-        compression='gzip')
+    cancer_dataframe_aq = load_and_update_new_data(
+        current_df_path=f'{destination_folder}cancer_aq.parquet.gzip', 
+        new_data=cancer_dataframe_aq, 
+        updated_df_path=f'{destination_folder}cancer_aq_copy.parquet.gzip')    
 
-    cancer_dataframe_aq.to_parquet(
-        f'{destination_folder}cancer_aq_copy.parquet.gzip', 
-        compression='gzip')
-
-    cancer_dataframe_ar.to_parquet(
-        f'{destination_folder}cancer_ar_copy.parquet.gzip', 
-        compression='gzip')
+    cancer_dataframe_ar = load_and_update_new_data(
+        current_df_path=f'{destination_folder}cancer_ar.parquet.gzip', 
+        new_data=cancer_dataframe_ar, 
+        updated_df_path=f'{destination_folder}cancer_ar_copy.parquet.gzip')
 
     # Montagem do dataset cancer, consolidando procedimentos
 
@@ -272,18 +294,8 @@ for state in states:
         ], 
         ignore_index=True)
     
-    current_cancer_dataframe = pd.read_parquet(
-        f'{destination_folder}cancer.parquet.gzip')
-
-    new_cancer_dataframe = (
-        pd.concat([current_cancer_dataframe, cancer_dataframe])
-        .drop_duplicates(keep='last')
-        .sort_values('data', ascending=False)
-        .reset_index(drop=True))    
-    
-    
     ## Cria arquivo de registros de procedimentos (radioterapia e quimioterapia)
-    new_cancer_dataframe.to_parquet(
+    cancer_dataframe.to_parquet(
         f'{destination_folder}cancer_copy.parquet.gzip', 
         compression='gzip')
     
@@ -313,7 +325,7 @@ for state in states:
     # - Indicação de óbito: valor máximo do campo AP_OBITO, presente em AQ e AR (0: sem indicação e 1:com indicação de óbito) O valor 1 indicará óbito.    
     
     ## Cálculo dos valores considerando apenas AQ e AR
-    df_paciente = new_cancer_dataframe\
+    df_paciente = cancer_dataframe\
         .sort_values(by=['data'], ascending=True)\
         .groupby(['paciente'])\
         .agg(
@@ -355,7 +367,7 @@ for state in states:
     #  - ultimo_municipio: municipio do último procedimento do paciente;
     #  - indicacao_obito: indica se o paciente tem marcação de obito em algum procedimento.
     procedimentos_e_pacientes = pd.merge(
-        new_cancer_dataframe, 
+        cancer_dataframe, 
         df_paciente,
         on='paciente',
         how="outer") 
