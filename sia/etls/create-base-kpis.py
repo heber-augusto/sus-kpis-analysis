@@ -238,19 +238,19 @@ for state in states:
     cancer_dataframe_pa = load_and_update_new_data(
         current_df_path=f'{destination_folder}cancer_pa.parquet.gzip', 
         new_data=cancer_dataframe_pa, 
-        updated_df_path=f'{destination_folder}cancer_pa_copy.parquet.gzip',
+        updated_df_path=f'{destination_folder}cancer_pa.parquet.gzip',
         key_to_sort='PA_CMP')
     
     cancer_dataframe_aq = load_and_update_new_data(
         current_df_path=f'{destination_folder}cancer_aq.parquet.gzip', 
         new_data=cancer_dataframe_aq, 
-        updated_df_path=f'{destination_folder}cancer_aq_copy.parquet.gzip',
+        updated_df_path=f'{destination_folder}cancer_aq.parquet.gzip',
         key_to_sort='AP_CMP')    
 
     cancer_dataframe_ar = load_and_update_new_data(
         current_df_path=f'{destination_folder}cancer_ar.parquet.gzip', 
         new_data=cancer_dataframe_ar, 
-        updated_df_path=f'{destination_folder}cancer_ar_copy.parquet.gzip',
+        updated_df_path=f'{destination_folder}cancer_ar.parquet.gzip',
         key_to_sort='AP_CMP')
 
     # Montagem do dataset cancer, consolidando procedimentos
@@ -299,7 +299,7 @@ for state in states:
     
     ## Cria arquivo de registros de procedimentos (radioterapia e quimioterapia)
     cancer_dataframe.to_parquet(
-        f'{destination_folder}cancer_copy.parquet.gzip', 
+        f'{destination_folder}cancer.parquet.gzip', 
         compression='gzip')
     
     # Montagem do dataset de Exames de Paciente (1 linha por paciente)
@@ -345,8 +345,23 @@ for state in states:
         .reset_index()
 
     df_paciente.to_parquet(
-        f'{destination_folder}pacientes_copy.parquet.gzip', 
+        f'{destination_folder}pacientes.parquet.gzip', 
         compression='gzip')
+
+    # calcula diagnosticos novos por mes / estadiamento
+    pacientes_final = df_paciente[(df_paciente.primeiro_estadiamento != '')]
+
+    diagnosticos_por_estadiamento_municipio = pacientes_final\
+        .groupby(['primeiro_estadiamento', 'data_primeiro_estadiamento', 'primeiro_municipio'])\
+        .agg(
+            numero_diagnosticos=('paciente', 'count')
+            )\
+        .reset_index()
+    diagnosticos_por_estadiamento_municipio    
+    normalized_columns = ['primeiro_estadiamento', 'data', 'municipio', 'numero_diagnosticos']
+    diagnosticos_por_estadiamento_municipio.columns = normalized_columns
+    
+    
     
     # Montagem do dataset de Procedimentos com dados consolidados Paciente (1 linha por procedimento)
 
@@ -376,7 +391,7 @@ for state in states:
         how="outer") 
     
     procedimentos_e_pacientes.to_parquet(
-        f'{destination_folder}procedimentos_e_pacientes_copy.parquet.gzip', 
+        f'{destination_folder}procedimentos_e_pacientes.parquet.gzip', 
         compression='gzip')
     
     # Criação de dataset de consolidando dados de pacientes por estadiamento/municipio/mês
@@ -403,9 +418,16 @@ for state in states:
             numero_procedimentos=('data','count')
             )\
         .reset_index()  
-
+    dados_estad_municipio_mensal = pd.merge(
+        dados_estad_municipio_mensal, 
+        diagnosticos_por_estadiamento_municipio,
+        on=['data','municipio', 'primeiro_estadiamento'],
+        how="outer")
+    dados_estad_municipio_mensal['numero_diagnosticos'] = dados_estad_municipio_mensal['numero_diagnosticos'].fillna(0)
+    
+    
     dados_estad_municipio_mensal.to_parquet(
-        f'{destination_folder}dados_estad_municipio_mensal_copy.parquet.gzip', 
+        f'{destination_folder}dados_estad_municipio_mensal.parquet.gzip', 
         compression='gzip')
     
     
@@ -431,11 +453,12 @@ for state in states:
             numero_municipios=('municipio', 'nunique'), 
             obtitos=('obtitos', 'sum'),
             obito_futuro=('obito_futuro', 'sum'),
-            numero_procedimentos=('numero_procedimentos','sum')
+            numero_procedimentos=('numero_procedimentos','sum'),
+            numero_diagnosticos=('numero_diagnosticos','sum')
             )\
         .reset_index()    
     
     dados_estad_mensal.to_parquet(
-        f'{destination_folder}dados_estad_mensal_copy.parquet.gzip', 
+        f'{destination_folder}dados_estad_mensal.parquet.gzip', 
         compression='gzip')    
     
