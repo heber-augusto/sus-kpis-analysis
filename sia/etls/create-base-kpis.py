@@ -61,14 +61,14 @@ def get_files(state, year, month, file_type, file_group):
     print(f'glob_filter: {glob_filter}')
     return glob.glob(glob_filter)
 
-def load_and_update_new_data(current_df_path, new_data, updated_df_path):
+def load_and_update_new_data(current_df_path, new_data, updated_df_path, key_to_sort):
     current_dataframe = pd.read_parquet(
         current_df_path)
 
     new_df = (
         pd.concat([current_dataframe, new_data])
         .drop_duplicates(keep='last')
-        .sort_values('data', ascending=False)
+        .sort_values(key_to_sort, ascending=False)
         .reset_index(drop=True))    
     
     
@@ -238,17 +238,20 @@ for state in states:
     cancer_dataframe_pa = load_and_update_new_data(
         current_df_path=f'{destination_folder}cancer_pa.parquet.gzip', 
         new_data=cancer_dataframe_pa, 
-        updated_df_path=f'{destination_folder}cancer_pa_copy.parquet.gzip')
+        updated_df_path=f'{destination_folder}cancer_pa_copy.parquet.gzip',
+        key_to_sort='PA_CMP')
     
     cancer_dataframe_aq = load_and_update_new_data(
         current_df_path=f'{destination_folder}cancer_aq.parquet.gzip', 
         new_data=cancer_dataframe_aq, 
-        updated_df_path=f'{destination_folder}cancer_aq_copy.parquet.gzip')    
+        updated_df_path=f'{destination_folder}cancer_aq_copy.parquet.gzip',
+        key_to_sort='AP_CMP')    
 
     cancer_dataframe_ar = load_and_update_new_data(
         current_df_path=f'{destination_folder}cancer_ar.parquet.gzip', 
         new_data=cancer_dataframe_ar, 
-        updated_df_path=f'{destination_folder}cancer_ar_copy.parquet.gzip')
+        updated_df_path=f'{destination_folder}cancer_ar_copy.parquet.gzip',
+        key_to_sort='AP_CMP')
 
     # Montagem do dataset cancer, consolidando procedimentos
 
