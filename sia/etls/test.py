@@ -191,3 +191,48 @@ if __name__ == "__main__":
     
     for state in states:
         print(f'processing files from {state}')
+    ## SIA PA: Leitura e união de dados para o período desejado
+    file_type = 'SIA'
+    
+    for state in states:
+        print(f'processing files from {state}')
+
+        ### Monta lista de arquivos a serem lidos
+        file_paths_by_type = {}
+    
+        # Arquivos de produção ambulatorial
+        file_paths_by_type['PA'] = get_file_paths(
+            state,
+            list_of_dates,
+            file_type,
+            'PA'
+        )
+    
+        # Arquivos de radioterapia
+        file_paths_by_type['AR'] = get_file_paths(
+            state,
+            list_of_dates,
+            file_type,
+            'AR'
+        )
+    
+        # Arquivos de quimioteraia
+        file_paths_by_type['AQ'] = get_file_paths(
+            state,
+            list_of_dates,
+            file_type,
+            'AQ'
+        )
+    
+        print(f"""Identificados {len(file_paths_by_type['PA'])} arquivos de produção ambulatorial para {state}""")
+        print(f"""Identificados {len(file_paths_by_type['AR'])} arquivos de radioterapia para {state}""")
+        print(f"""Identificados {len(file_paths_by_type['AQ'])} arquivos de quimioterapia para {state}""")
+    
+    
+        # Montagem do dataset cancer AR e AQ
+    
+        # Estes dois datasets (cancer_aq e cancer AR) não realizam nenhum tipo de filtro ou transformação 
+        # nos dados originais, apenas consolidam os registros de todos os anos/meses, coletados do FTP do SUS, 
+        # em um único dataframe.
+    
+        cancer_dataframe_pa = create_cancer_dataframe(file_paths_by_type['PA'], filter_function=filter_pa_content)        
