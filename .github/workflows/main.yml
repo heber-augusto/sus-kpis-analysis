@@ -64,7 +64,7 @@ jobs:
           export START_DATE=${{ github.event.inputs.start_date}}
           export END_DATE=${{ github.event.inputs.end_date}}  
           echo "installing python packages"
-          yes | pip3 install -r ./requirements.txt -q -q -q --exists-action i
+          pip3 install -r ./requirements.txt
           echo "running script"
           python3 ./create-base-kpis.py
 
