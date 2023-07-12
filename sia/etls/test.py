@@ -239,4 +239,10 @@ if __name__ == "__main__":
         cancer_dataframe_aq = create_cancer_dataframe(file_paths_by_type['AQ'], filter_function=filter_ar_content)
         cancer_dataframe_ar = create_cancer_dataframe(file_paths_by_type['AR'], filter_function=filter_aq_content)
     
-        destination_folder = f"""{output_dir}/{state}/consolidado/"""       
+        destination_folder = f"""{output_dir}/{state}/consolidado/"""
+
+        cancer_dataframe_pa = load_and_update_new_data(
+            current_df_path=f'{destination_folder}cancer_pa.parquet.gzip', 
+            new_data=cancer_dataframe_pa, 
+            updated_df_path=f'{destination_folder}cancer_pa.parquet.gzip',
+            key_to_sort='PA_CMP')        
