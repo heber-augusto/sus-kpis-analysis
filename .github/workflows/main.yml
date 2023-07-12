@@ -64,7 +64,7 @@ jobs:
           export START_DATE=${{ github.event.inputs.start_date}}
           export END_DATE=${{ github.event.inputs.end_date}}  
 
-          pip3 install -r ./requirements.txt
+          yes | pip3 install -r ./requirements.txt
           python3 ./create-base-kpis.py
 
       - run: echo "🍏 This job's status is ${{ job.status }}." 
