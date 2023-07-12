@@ -191,33 +191,3 @@ if __name__ == "__main__":
     
     for state in states:
         print(f'processing files from {state}')
-        ### Monta lista de arquivos a serem lidos
-        file_paths_by_type = {}
-    
-        # Arquivos de produção ambulatorial
-        file_paths_by_type['PA'] = get_file_paths(
-            state,
-            list_of_dates,
-            file_type,
-            'PA'
-        )
-    
-        # Arquivos de radioterapia
-        file_paths_by_type['AR'] = get_file_paths(
-            state,
-            list_of_dates,
-            file_type,
-            'AR'
-        )
-    
-        # Arquivos de quimioteraia
-        file_paths_by_type['AQ'] = get_file_paths(
-            state,
-            list_of_dates,
-            file_type,
-            'AQ'
-        )
-    
-        print(f"""Identificados {len(file_paths_by_type['PA'])} arquivos de produção ambulatorial para {state}""")
-        print(f"""Identificados {len(file_paths_by_type['AR'])} arquivos de radioterapia para {state}""")
-        print(f"""Identificados {len(file_paths_by_type['AQ'])} arquivos de quimioterapia para {state}""")
