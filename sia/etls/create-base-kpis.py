@@ -1,5 +1,7 @@
 # Instalação de bibliotecas e pacotes para leitura de arquivos
 
+print('start of etl - importing libraries')
+
 import glob
 import os
 import pandas as pd
