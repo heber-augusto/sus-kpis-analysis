@@ -9,6 +9,9 @@ from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import rrule, MONTHLY
 
+print('start of etl - reading enviroment variables')
+
+
 DEF_START_DATE = (date.today() + relativedelta(months=-6))
 DEF_END_DATE = (date.today() + relativedelta(months=-1))
 
