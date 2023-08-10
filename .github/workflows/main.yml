@@ -52,7 +52,10 @@ jobs:
           export SPARK_VERSION=3.4.1
           
           sudo mv ./gcs-connector-hadoop3-latest.jar $SPARK_HOME/jars          
-          
+
+          echo "running script"
+          python3 ./test-spark.py
+
       - name: Create output and temp dir
         run: |  
           export OUTPUT_DIR=${{ github.workspace }}/output-files
