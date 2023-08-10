@@ -56,39 +56,5 @@ jobs:
           echo "running script"
           python3 ./sia/etls/test-spark.py
 
-      - name: Create output and temp dir
-        run: |  
-          export OUTPUT_DIR=${{ github.workspace }}/output-files
-          export TEMP_DIR=${{ github.workspace }}/temp-files          
-          mkdir ${OUTPUT_DIR}
-          mkdir ${TEMP_DIR}
-      - name: 'install gcsfuse to access bucket'
-        run: |
-          export GCSFUSE_REPO=gcsfuse-`lsb_release -c -s`
-          echo "deb https://packages.cloud.google.com/apt $GCSFUSE_REPO main" | sudo tee /etc/apt/sources.list.d/gcsfuse.list
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-          sudo apt-get update
-          sudo apt-get install gcsfuse
-          sudo groupadd fuse
-          sudo usermod -a -G fuse $USER
-          sudo chown $USER_ID:fuse ${{ github.workspace }}/output-files
-          
-          gcsfuse --dir-mode=777 --file-mode=777 --key-file=$GOOGLE_APPLICATION_CREDENTIALS --implicit-dirs observatorio-oncologia ${{ github.workspace }}/output-files
-          
-      - name: Prepare permissions, scripts and call script to collect files
-        working-directory: ./sia/etls
-        run: |
-          export INPUT_DIR=${{ github.workspace }}/output-files/monitor        
-          export OUTPUT_DIR=${{ github.workspace }}/output-files/monitor
-          export TEMP_DIR=${{ github.workspace }}/temp-files  
-
-          export STATES=${{ github.event.inputs.states}}
-          export START_DATE=${{ github.event.inputs.start_date}}
-          export END_DATE=${{ github.event.inputs.end_date}}  
-          echo "installing python packages"
-          pip3 install -r ./requirements.txt
-          echo "running script"
-          python3 ./test.py
-
       - run: echo "🍏 This job's status is ${{ job.status }}." 
       - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
