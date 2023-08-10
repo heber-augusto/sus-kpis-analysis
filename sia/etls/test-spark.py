@@ -3,7 +3,8 @@ import findspark
 
 json_filename = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
 project_id = os.getenv('GCLOUD_PROJECT', '')
-findspark.init("/content/spark-3.4.1-bin-hadoop3")
+spark_home = os.getenv('SPARK_HOME','')
+findspark.init(spark_home)
 
 # id do bucket dentro do projeto
 bucket_id = 'observatorio-oncologia'
