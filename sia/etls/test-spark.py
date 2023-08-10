@@ -114,19 +114,19 @@ if __name__ == "__main__":
     cancer_aq_filtered.write.format("delta").mode("overwrite").saveAsTable("bronze.cancer_aq_filtered")
 
     # cria tabela delta contendo dados de redioterapia
-    parquet_path=f'gs://{bucket_id}/{project_folder_name}/*/*/*/SIA/AP/*.parquet.gzip'
-    cancer_ap_raw = get_cancer_raw_dataframe(parquet_path)
-    cancer_ap_raw.createOrReplaceTempView("cancer_ap")
+    parquet_path=f'gs://{bucket_id}/{project_folder_name}/*/*/*/SIA/AR/*.parquet.gzip'
+    cancer_ar_raw = get_cancer_raw_dataframe(parquet_path)
+    cancer_ar_raw.createOrReplaceTempView("cancer_ar")
     sql_query = get_select_all_query(
-        table_name = 'cancer_ap'  ,
+        table_name = 'cancer_ar'  ,
         where_clause = f"WHERE AP_CIDPRI IN {cid_filter}"  ,
     )
     
-    cancer_ap_filtered = run_sql_query(sql_query)
-    cancer_ap_filtered.write.format("delta").mode("overwrite").saveAsTable("bronze.cancer_ap_filtered")
+    cancer_ar_filtered = run_sql_query(sql_query)
+    cancer_ar_filtered.write.format("delta").mode("overwrite").saveAsTable("bronze.cancer_ar_filtered")
 
 
-    df = spark.sql("select count(*), AP_UFMUN from bronze.cancer_ap_filtered group by AP_UFMUN")
+    df = spark.sql("select count(*), AP_UFMUN from bronze.cancer_ar_filtered group by AP_UFMUN")
     print(df.show())
 
     df = spark.sql("select count(*), AP_UFMUN from bronze.cancer_aq_filtered group by AP_UFMUN")
