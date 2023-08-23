@@ -6,6 +6,7 @@ from pyspark.sql import SparkSession
 from pyspark.conf import SparkConf
 from delta.pip_utils import configure_spark_with_delta_pip
 from pyspark.sql.functions import input_file_name
+from lib.catalog_loader import DeltaLakeDatabaseGsCreator
 
 json_filename = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
 project_id = os.getenv('GCLOUD_PROJECT', '')
@@ -18,7 +19,17 @@ bucket_id = 'observatorio-oncologia'
 # nome da pasta do projeto
 project_folder_name = 'monitor'
 
+# nome da pasta do projeto
+project_folder_name = 'monitor'
+
+#nome da pasta onde estamos criando o delta lake, dentro do bucket
 dev_lake_name = "lake-rosa-dev"
+
+# zona (define a pasta dentro do delta lake)
+lake_zone = "silver"
+
+#nome da base de dados (utilizada no padrão delta)
+database_name = "cancer_data"
 
 
 # Cria a configuração do Spark
@@ -91,14 +102,24 @@ print(cid_filter)
 
 
 if __name__ == "__main__":
-    data = spark.read.format("csv")\
+    cidades = spark.read.format("csv")\
         .option("header",True)\
         .option("sep",";")\
         .load(f"gs://{bucket_id}/{project_folder_name}/ibge_data/ibge_cidades.csv")
-  
-    print(data.show())
+    cidades.createOrReplaceTempView("cadastro_cidades")
 
-    spark.sql("CREATE DATABASE IF NOT EXISTS bronze")
+    # Cliente do Google Cloud Storage
+    storage_client = storage.Client.from_service_account_json(json_filename)
+    database_location = f'{dev_lake_name}/{lake_zone}'  # Substitua com o local do seu banco de dados Delta Lake
+    
+    db_creator = DeltaLakeDatabaseGsCreator(
+        spark_session = spark, 
+        storage_client = storage_client,
+        gs_bucket_id = bucket_id,
+        database_location = database_location, 
+        database_name = database_name)
+    db_creator.create_database()
+    db_creator.recreate_tables()
 
     # cria tabela delta contendo dados de quimioterapia
     parquet_path=f'gs://{bucket_id}/{project_folder_name}/*/*/*/SIA/AQ/*.parquet.gzip'
@@ -111,7 +132,12 @@ if __name__ == "__main__":
     )
     
     cancer_aq_filtered = run_sql_query(sql_query)
-    cancer_aq_filtered.write.format("delta").mode("overwrite").saveAsTable("bronze.cancer_aq_filtered")
+    cancer_aq_filtered\
+          .repartition(1)\
+          .write\
+          .format("delta")\
+          .mode("overwrite")\
+          .saveAsTable(f"{database_name}.aq_filtered")
 
     # cria tabela delta contendo dados de redioterapia
     parquet_path=f'gs://{bucket_id}/{project_folder_name}/*/*/*/SIA/AR/*.parquet.gzip'
@@ -123,11 +149,176 @@ if __name__ == "__main__":
     )
     
     cancer_ar_filtered = run_sql_query(sql_query)
-    cancer_ar_filtered.write.format("delta").mode("overwrite").saveAsTable("bronze.cancer_ar_filtered")
+    cancer_ar_filtered\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.ar_filtered")
+    
 
+    # cria dados consolidados de pacientes e procedimentos (quimio e radioterapia)
+    cancer_aq_res = spark.sql(f"""
+    SELECT
+        AP_CMP as data,
+        AP_CNSPCN as paciente,
+        AQ_ESTADI as estadiamento,
+        DOUBLE(AP_VL_AP)  as custo,
+        INT(AP_OBITO) as obito,
+        AP_MUNPCN as municipio
+    FROM {database_name}.aq_filtered
+    """)
+    
+    cancer_ar_res = spark.sql(f"""
+    SELECT
+        AP_CMP as data,
+        AP_CNSPCN as paciente,
+        AR_ESTADI as estadiamento,
+        DOUBLE(AP_VL_AP)  as custo,
+        INT(AP_OBITO) as obito,
+        AP_MUNPCN as municipio
+    FROM {database_name}.ar_filtered
+    """)
+    
+    
+    df_union = cancer_aq_res.union(cancer_ar_res)
+    
+    
+    df_union.createOrReplaceTempView("cancer_ordered")
+    
+    
+    res_consolidado = spark.sql("""
+    SELECT
+        paciente,
+        FIRST(data) as data_primeiro_estadiamento,
+        LAST(data) as data_ultimo_estadiamento,
+        COUNT(1) as numero_procedimentos,
+        FIRST(estadiamento) as primeiro_estadiamento,
+        LAST(estadiamento) as ultimo_estadiamento,
+        MAX (estadiamento) as maior_estadiamento,
+        MIN (estadiamento) as menor_estadiamento,
+        SUM(custo) as custo_total,
+        MAX(obito) as indicacao_obito,
+        FIRST(municipio) as primeiro_municipio,
+        LAST(municipio) as ultimo_municipio
+    FROM (SELECT * FROM cancer_ordered ORDER BY paciente, data)
+    GROUP BY paciente
+    """)
 
-    df = spark.sql("select count(*), AP_UFMUN from bronze.cancer_ar_filtered group by AP_UFMUN")
-    print(df.show())
+   df_union\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.procedimentos")
 
-    df = spark.sql("select count(*), AP_UFMUN from bronze.cancer_aq_filtered group by AP_UFMUN")
-    print(df.show())
+    res_consolidado\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.pacientes")
+
+    procedimentos_e_pacientes = spark.sql(f"""
+      select
+         c.*,
+         p.data_primeiro_estadiamento,
+         p.data_ultimo_estadiamento,
+         p.primeiro_estadiamento,
+         p.maior_estadiamento,
+         p.ultimo_estadiamento,
+         p.custo_total,
+         p.primeiro_municipio,
+         p.ultimo_municipio,
+         p.indicacao_obito
+      from {database_name}.procedimentos as c
+      FULL OUTER JOIN {database_name}.pacientes as p
+      ON c.paciente = p.paciente
+      """)
+    
+    procedimentos_e_pacientes\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.procedimentos_e_pacientes")
+
+    #consolida dados por estado e municipio
+    diagnosticos_por_estadiamento_municipio = spark.sql(f"""
+      select
+          primeiro_estadiamento,
+          data_primeiro_estadiamento as data,
+          primeiro_municipio as municipio,
+          count(distinct (paciente)) as numero_diagnosticos
+      from {database_name}.pacientes
+      WHERE primeiro_estadiamento != ''
+      GROUP BY primeiro_estadiamento, data_primeiro_estadiamento, primeiro_municipio
+      """)
+    
+    diagnosticos_por_estadiamento_municipio.createOrReplaceTempView("diagnosticos_por_estadiamento_municipio")
+
+    dados_estad_municipio_mensal = spark.sql(f"""
+      SELECT
+        data,
+        municipio,
+        primeiro_estadiamento,
+        SUM(custo) as custo_estadiamento,
+        count(distinct (paciente)) as numero_pacientes,
+        SUM(distinct (obito)) as obitos,
+        SUM(distinct (indicacao_obito)) as obito_futuro,
+        count(1) as numero_procedimentos
+      FROM
+        (select * from {database_name}.procedimentos_e_pacientes order by data)
+      GROUP BY  data, municipio, primeiro_estadiamento
+              """)
+    dados_estad_municipio_mensal.createOrReplaceTempView("dados_municipios_mensal")
+    
+    dados_estad_municipio_mensal = spark.sql("""
+      SELECT
+          mm.*,
+          COALESCE(em.numero_diagnosticos,0) as numero_diagnosticos
+      FROM dados_municipios_mensal mm
+      FULL OUTER JOIN diagnosticos_por_estadiamento_municipio em
+      ON mm.data = em.data AND
+         mm.municipio = em.municipio AND
+         mm.primeiro_estadiamento = em.primeiro_estadiamento
+    """)
+    
+    dados_estad_municipio_mensal\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.dados_municipios_mensal")
+
+    dados_estad_mensal = spark.sql(f"""
+      SELECT
+        estado,
+        data,
+        primeiro_estadiamento,
+        SUM(custo_estadiamento) as custo_estadiamento,
+        SUM(numero_pacientes) as numero_pacientes,
+        COUNT(DISTINCT( municipio)) as numero_municipios,
+        SUM(obitos) as obitos,
+        SUM(obito_futuro) as obitos_futuros,
+        SUM(numero_procedimentos) as numero_procedimentos,
+        SUM(numero_diagnosticos) as numero_diagnosticos
+    
+      FROM
+      (SELECT
+         cadastro_cidades.nome_uf as estado,
+         mm.*
+      FROM {database_name}.dados_municipios_mensal mm
+      LEFT JOIN cadastro_cidades
+      ON int(mm.municipio) = int(cadastro_cidades.id/10)
+      order by data) as dados_estado
+    
+      GROUP BY estado, data, primeiro_estadiamento
+    """)
+    
+    dados_estad_mensal\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.dados_estados_mensal")
