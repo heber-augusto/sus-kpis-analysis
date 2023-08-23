@@ -7,6 +7,7 @@ from pyspark.conf import SparkConf
 from delta.pip_utils import configure_spark_with_delta_pip
 from pyspark.sql.functions import input_file_name
 from lib.catalog_loader import DeltaLakeDatabaseGsCreator
+from google.cloud import storage
 
 json_filename = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
 project_id = os.getenv('GCLOUD_PROJECT', '')
