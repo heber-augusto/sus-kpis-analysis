@@ -205,7 +205,7 @@ if __name__ == "__main__":
     GROUP BY paciente
     """)
 
-   df_union\
+    df_union\
       .repartition(1)\
       .write\
       .format("delta")\
