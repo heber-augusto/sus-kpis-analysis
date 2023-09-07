@@ -6,15 +6,9 @@ on:
       states:
         description: 'States to collect files'
         required: false
-        default: 'SP'  
-      start_date:
-        description: 'Start date (YYYY-MM-DD)'
-        required: false
-      end_date:
-        description: 'End date (YYYY-MM-DD)'
-        required: false        
+        default: 'SP'        
   schedule:
-    - cron:  '0 8 5,6,7 * *'
+    - cron:  '0 10 * * *'
     
 jobs:
   Update-Datasets:
@@ -55,7 +49,7 @@ jobs:
           sudo mv ./gcs-connector-hadoop3-latest.jar $SPARK_HOME/jars          
 
           echo "running script"
-          python3 ./sia/etls/test-spark.py
+          python3 ./sia/etls/create-base-kpis.py
 
       - run: echo "🍏 This job's status is ${{ job.status }}." 
       - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
