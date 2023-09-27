@@ -4,7 +4,7 @@ from delta.pip_utils import configure_spark_with_delta_pip
 import findspark
 
 
-def create_spark_session(gcs_project_id, gcs_json_keyfile, warehouse_dir, spark_path):
+def create_gs_spark_session(gcs_project_id, gcs_json_keyfile, warehouse_dir, spark_path):
     # Utiliza findspark para inicializar corretamente o ambiente
     findspark.init(spark_path)
 
