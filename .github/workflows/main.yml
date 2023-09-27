@@ -27,7 +27,7 @@ jobs:
       - name: Download and prepare Spark
         run: | 
           echo "enviroment setup"        
-          sudo sh ./sia/bin/setup_spark_env.sh './'
+          sudo sh ./sia/etls/bin/setup_spark_env.sh './'
           pip3 install -r ./sia/etls/requirements.txt
 
           echo "running script"
