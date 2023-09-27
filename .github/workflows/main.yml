@@ -25,22 +25,11 @@ jobs:
           credentials_json: '${{ secrets.gcp_credentials }}'
           
       - name: Download and prepare Spark
-        run: |           
-          sudo apt-get update  > /dev/null
-          sudo apt-get install openjdk-8-jdk-headless -qq > /dev/null
-          sudo wget -q https://downloads.apache.org/spark/spark-3.4.1/spark-3.4.1-bin-hadoop3.tgz
-          sudo tar xf spark-3.4.1-bin-hadoop3.tgz
-          
-          sudo wget -q https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop3-latest.jar
-
-          export PYTHONHASHSEED=1234
-          export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-          export SPARK_HOME=./spark-3.4.1-bin-hadoop3
-          export SPARK_VERSION=3.4.1
-          
-          sudo mv ./gcs-connector-hadoop3-latest.jar $SPARK_HOME/jars          
-
+        run: | 
+          echo "enviroment setup"        
+          sudo sh ./sia/bin/setup_spark_env.sh './'
           pip3 install -r ./sia/etls/requirements.txt
+
           echo "running script"
           python3 ./sia/etls/create-base-kpis.py
 
