@@ -1,3 +1,5 @@
-pandas
-numpy
-pyarrow
+findspark 
+pyspark 
+imagehash
+delta-spark==2.4.0
+google-cloud-storage
