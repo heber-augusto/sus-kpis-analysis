@@ -84,8 +84,13 @@ if __name__ == "__main__":
         .option("header",True)\
         .option("sep",";")\
         .load(f"gs://{bucket_id}/{project_folder_name}/ibge_data/ibge_cidades.csv")
-    cidades.createOrReplaceTempView("cadastro_cidades")
 
+    data_ibge_pop_sexo_grupos_idade_municipios = spark.read.format("csv")\
+        .option("header",True)\
+        .option("sep",";")\
+        .load(f"gs://{bucket_id}/{project_folder_name}/ibge_data/ibge_pop_sexo_grupos_idade_municipios.csv")
+   
+    
     # Cliente do Google Cloud Storage
     storage_client = storage.Client.from_service_account_json(json_filename)
     database_location = f'{dev_lake_name}/{lake_zone}'  # Substitua com o local do seu banco de dados Delta Lake
@@ -99,6 +104,21 @@ if __name__ == "__main__":
     db_creator.create_database()
     db_creator.recreate_tables()
 
+
+    cidades\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.cadastro_municipios")
+
+    data_ibge_pop_sexo_grupos_idade_municipios\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{database_name}.demografia_municipios")
+    
     # cria tabela delta contendo dados de quimioterapia
     parquet_path=f'gs://{bucket_id}/{project_folder_name}/*/*/*/SIA/AQ/*.parquet.gzip'
     cancer_aq_raw = get_cancer_raw_dataframe(parquet_path)
@@ -287,7 +307,7 @@ if __name__ == "__main__":
          cadastro_cidades.nome_uf as estado,
          mm.*
       FROM {database_name}.dados_municipios_mensal mm
-      LEFT JOIN cadastro_cidades
+      LEFT JOIN {database_name}.cadastro_municipios as cadastro_cidades
       ON int(mm.municipio) = int(cadastro_cidades.id/10)
       order by data) as dados_estado
     
