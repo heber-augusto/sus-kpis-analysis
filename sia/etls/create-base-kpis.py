@@ -1,19 +1,13 @@
 import os
-import findspark
-
-
-from pyspark.sql import SparkSession
-from pyspark.conf import SparkConf
-from delta.pip_utils import configure_spark_with_delta_pip
 from pyspark.sql.functions import input_file_name
 from lib.catalog_loader import DeltaLakeDatabaseGsCreator
 from lib.table_utilities import vacuum_tables_from_database
+from lib.gs_spark_session import create_gs_spark_session
 from google.cloud import storage
 
 json_filename = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
 project_id = os.getenv('GCLOUD_PROJECT', '')
 spark_home = os.getenv('SPARK_HOME','')
-findspark.init(spark_home)
 
 # id do bucket dentro do projeto
 bucket_id = 'observatorio-oncologia'
@@ -34,32 +28,14 @@ lake_zone = "silver"
 database_name = "cancer_data"
 
 
-# Cria a configuração do Spark
-spark_conf = SparkConf()
-spark_conf.set("spark.hadoop.fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS")
-spark_conf.set("spark.hadoop.fs.gs.project.id", project_id)
-spark_conf.set("spark.hadoop.google.cloud.auth.service.account.enable", "true")
-spark_conf.set("spark.hadoop.google.cloud.auth.service.account.json.keyfile", json_filename)
-spark_conf.set("spark.sql.parquet.compression.codec", "gzip")
-spark_conf.set("spark.sql.warehouse.dir", f"gs://{bucket_id}/{dev_lake_name}/")
-spark_conf.set("spark.delta.logStore.gs.impl","io.delta.storage.GCSLogStore")
+# Cria a sessão spark
+spark = create_gs_spark_session(
+    gcs_project_id=project_id, 
+    gcs_json_keyfile=json_filename, 
+    warehouse_dir=f"gs://{bucket_id}/{dev_lake_name}/", 
+    spark_path=spark_home)
 
-#spark_conf.set("spark.jars.packages", ",io.delta:delta-core_2.12-2.4.0")
-spark_conf.set("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
-spark_conf.set("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-spark_conf.set("spark.databricks.delta.retentionDurationCheck.enabled", "false")
-
-appName = 'Sus SQL'
-master = 'local[*]'
-
-# Cria a sessão Spark com a configuração
-spark_builder = SparkSession.builder \
-    .appName("Conexao_GCS_Spark") \
-    .config(conf=spark_conf)
-
-spark = configure_spark_with_delta_pip(spark_builder).getOrCreate()
-
-
+    
 def get_cancer_raw_dataframe(parquet_paths):
     df=spark.read.parquet(parquet_path)
     spark.udf.register("filename", lambda x: x.rsplit('/', 1)[-1].rsplit('.')[0])
