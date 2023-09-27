@@ -9,20 +9,24 @@ class DeltaLakeDatabaseGsCreator:
         self.database_name = database_name
         self.db_folder_path = f'gs://{self.gs_bucket_id}/{self.database_location}/{self.database_name}.db'
         
-    def create_database(self):
+    def create_database(self, use_db_folder_path = True):
+        if use_db_folder_path == True:
+            query_db_folder_path = f"LOCATION '{self.db_folder_path}'"
+        else:
+            query_db_folder_path = ""
         # Criação do banco de dados Delta Lake
-        create_db_query = f"CREATE DATABASE IF NOT EXISTS {self.database_name} LOCATION '{self.db_folder_path}'"
+        create_db_query = f"CREATE DATABASE IF NOT EXISTS {self.database_name} {query_db_folder_path}"
         self.spark_session.sql(create_db_query)
         
         print(f"Banco de dados {self.database_name} criado.")
         
     def recreate_tables(self):
         # Cliente do Google Cloud Storage
-        bucket = self.storage_client.get_bucket(self.gs_bucket_id)
         print(f"listando conteúdos do bucket {self.gs_bucket_id} do caminho {self.database_location} e database {self.database_name}")
         # Lista os blobs no bucket
-        blobs = bucket.list_blobs(prefix=self.database_location)
-        
+        blobs = storage_client.list_blobs(
+            bucket_or_name = self.gs_bucket_id,
+            prefix=self.database_location)        
         for blob in blobs:
             if blob.name.endswith("/_delta_log/"):
                 # Obtém o nome da tabela a partir do caminho do blob
@@ -38,6 +42,10 @@ class DeltaLakeDatabaseGsCreator:
                 #delta_location = f"{self.database_location}/{table_name}"
                 create_table_query = f"CREATE TABLE IF NOT EXISTS {self.database_name}.{table_name} USING delta LOCATION '{delta_location}'"
                 self.spark_session.sql(create_table_query)
+                print(f"Tabela {table_name} criada")
+                #print(f"Tabela {table_name} criada com comando {create_table_query}")
+        
+        print("Recriação das tabelas concluída.")
                 print(f"Tabela {table_name} criada")
                 #print(f"Tabela {table_name} criada com comando {create_table_query}")
         
