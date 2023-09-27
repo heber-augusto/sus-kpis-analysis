@@ -7,6 +7,7 @@ from pyspark.conf import SparkConf
 from delta.pip_utils import configure_spark_with_delta_pip
 from pyspark.sql.functions import input_file_name
 from lib.catalog_loader import DeltaLakeDatabaseGsCreator
+from lib.table_utilities import vacuum_tables_from_database
 from google.cloud import storage
 
 json_filename = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
@@ -323,3 +324,12 @@ if __name__ == "__main__":
       .format("delta")\
       .mode("overwrite")\
       .saveAsTable(f"{database_name}.dados_estados_mensal")
+
+
+    # realiza limpeza de tabelas delta, considerando 24 horas de retenção
+    vacuum_tables_from_database(
+        spark_session = spark,
+        database_name = database_name,
+        retention_hours = 24
+    )
+
