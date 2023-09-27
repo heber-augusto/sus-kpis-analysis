@@ -328,6 +328,7 @@ if __name__ == "__main__":
 
     # realiza limpeza de tabelas delta, considerando 24 horas de retenção
     vacuum_tables_from_database(
+        spark_session = spark,
         database_name = database_name,
         retention_hours = 24
     )
