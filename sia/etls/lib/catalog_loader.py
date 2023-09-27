@@ -46,7 +46,3 @@ class DeltaLakeDatabaseGsCreator:
                 #print(f"Tabela {table_name} criada com comando {create_table_query}")
         
         print("Recriação das tabelas concluída.")
-                print(f"Tabela {table_name} criada")
-                #print(f"Tabela {table_name} criada com comando {create_table_query}")
-        
-        print("Recriação das tabelas concluída.")
