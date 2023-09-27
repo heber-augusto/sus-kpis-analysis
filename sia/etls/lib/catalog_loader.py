@@ -24,7 +24,7 @@ class DeltaLakeDatabaseGsCreator:
         # Cliente do Google Cloud Storage
         print(f"listando conteúdos do bucket {self.gs_bucket_id} do caminho {self.database_location} e database {self.database_name}")
         # Lista os blobs no bucket
-        blobs = storage_client.list_blobs(
+        blobs = self.storage_client.list_blobs(
             bucket_or_name = self.gs_bucket_id,
             prefix=self.database_location)        
         for blob in blobs:
