@@ -32,7 +32,10 @@ class DeltaLakeDatabaseGsCreator:
             delimiter="/")
         
         temp_blobs = [blob for blob in blobs]
-        table_list = [prefix for prefix in blobs.prefixes]
+        # Dividir a string usando '/' como delimitador e pegar o último elemento
+        table_list = [ \
+          prefix.split('/')[-2]
+          for prefix in blobs.prefixes]
         for table_name in table_list:
             #print(table_name)
 
