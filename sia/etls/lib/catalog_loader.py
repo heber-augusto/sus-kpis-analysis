@@ -24,25 +24,26 @@ class DeltaLakeDatabaseGsCreator:
         # Cliente do Google Cloud Storage
         print(f"listando conteúdos do bucket {self.gs_bucket_id} do caminho {self.database_location} e database {self.database_name}")
         # Lista os blobs no bucket
+        prefix = f'{self.database_location}/{self.database_name}.db/'
+        print(f'prefix: {prefix}')
         blobs = self.storage_client.list_blobs(
             bucket_or_name = self.gs_bucket_id,
-            prefix=self.database_location)        
-        for blob in blobs:
-            if blob.name.endswith("/_delta_log/"):
-                # Obtém o nome da tabela a partir do caminho do blob
-                parts = blob.name.removesuffix("/_delta_log/").split("/")
-                table_name = parts[-1]
-                #print(table_name)
+            prefix=prefix,  # <- you need the trailing slash
+            delimiter="/")
+        
+        temp_blobs = [blob for blob in blobs]
+        table_list = [prefix for prefix in blobs.prefixes]
+        for table_name in table_list:
+            #print(table_name)
 
-                # Criação da tabela Delta Lake
-                delta_location = f"{self.db_folder_path}/{table_name}"
-                #print(delta_location)
-                
-                # Criação da tabela Delta Lake
-                #delta_location = f"{self.database_location}/{table_name}"
-                create_table_query = f"CREATE TABLE IF NOT EXISTS {self.database_name}.{table_name} USING delta LOCATION '{delta_location}'"
-                self.spark_session.sql(create_table_query)
-                print(f"Tabela {table_name} criada")
-                #print(f"Tabela {table_name} criada com comando {create_table_query}")
+            # Criação da tabela Delta Lake
+            delta_location = f"{self.db_folder_path}/{table_name}"
+            #print(delta_location)
+            
+            # Criação da tabela Delta Lake
+            create_table_query = f"CREATE TABLE IF NOT EXISTS {self.database_name}.{table_name} USING delta LOCATION '{delta_location}'"
+            self.spark_session.sql(create_table_query)
+            #print(f"Tabela {table_name} criada")
+            #print(f"Tabela {table_name} criada com comando {create_table_query}")
         
         print("Recriação das tabelas concluída.")
