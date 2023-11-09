@@ -33,7 +33,7 @@ spark = create_gs_spark_session(
     spark_path=spark_home)
 
 if __name__ == "__main__":
-    print('atualizando arquivos do {file_group}-{file_type}')
+    print(f'atualizando arquivos do {file_group}-{file_type}')
 
     # Cliente do Google Cloud Storage
     storage_client = storage.Client.from_service_account_json(json_filename)
@@ -46,8 +46,8 @@ if __name__ == "__main__":
         lake_zones = ['bronze',])
 
     parquet_to_delta = ParquetToDelta(spark)
-    database_name = f"{file_group}_bronze"  # Nome do banco de dados baseado no grupo de arquivo (SIA, SIH, etc)
-    table_name = f"{file_type}"        # Nome da tabela Delta (tipo de arquivo, dentro do grupo SIA-PA, SIA-QA, etc)
+    database_name = f"{file_group.lower()}_bronze"  # Nome do banco de dados baseado no grupo de arquivo (SIA, SIH, etc)
+    table_name = f"{file_type.lower()}"        # Nome da tabela Delta (tipo de arquivo, dentro do grupo SIA-PA, SIA-QA, etc)
     
     unique_columns = []  # Deixe a lista de colunas únicas vazia
     partition_columns = ["_filename", ]  # Defina as colunas de partição
