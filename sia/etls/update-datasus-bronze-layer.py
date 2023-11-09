@@ -65,8 +65,8 @@ if __name__ == "__main__":
 
 
     start_time = time.time()
-    max_files = 10  # Número máximo de arquivos a serem processados
-    max_time = 3600  # Limite de tempo em segundos (teste 1 h)
+    max_files = 50  # Número máximo de arquivos a serem processados
+    max_time = 5*3600  # Limite de tempo em segundos (segurança: 5 h)
     
     pending_files_path = get_pending_files_from_bronze(
         storage_client = storage_client,
