@@ -6,6 +6,8 @@ from lib.catalog_loader import DeltaLakeDatabaseGsCreator, load_entire_catalog
 from lib.table_utilities import vacuum_tables_from_database
 from lib.gs_spark_session import create_gs_spark_session
 from lib.bronze_files_utilities import get_pending_files_from_bronze
+from lib.delta_table_creators import ParquetToDelta
+
 from google.cloud import storage
 
 json_filename = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
