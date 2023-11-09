@@ -21,7 +21,8 @@ def create_gs_spark_session(gcs_project_id, gcs_json_keyfile, warehouse_dir, spa
     spark_conf.set("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
     spark_conf.set("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
     spark_conf.set("spark.databricks.delta.retentionDurationCheck.enabled", "false")
-
+    spark_conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
+    
     appName = 'Sus SQL'
     master = 'local[*]'
 
