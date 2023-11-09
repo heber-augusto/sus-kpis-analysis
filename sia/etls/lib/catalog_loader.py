@@ -81,5 +81,5 @@ def load_entire_catalog(spark_session, storage_client, bucket_id, lake_prefix, l
                 gs_bucket_id = bucket_id,
                 database_location = database_location,
                 database_name = database_name.replace('.db', ''))
-            db_creator.create_database(use_db_folder_path = (datalake_mode == 'escrita'))
+            db_creator.create_database()
             db_creator.recreate_tables()
