@@ -31,8 +31,11 @@ class ParquetToDelta:
         # Ler todos os arquivos Parquet no diretório de entrada como um DataFrame
         parquet_df = self.spark.read.option("recursiveFileLookup", "true").parquet(parquet_path)
 
-        # Adicionar uma coluna contendo o caminho do arquivo Parquet
-        parquet_df_with_filepath = parquet_df.withColumn("_filepath", input_file_name())
+        # Adicionar uma coluna contendo o caminho do arquivo Parquet e de criação/modificação do arquivo
+        parquet_df_with_filepath = (parquet_df
+            .withColumn("_filepath", input_file_name())
+            .selectExpr("*", "_metadata.file_modification_time as file_modification_time")
+        )   
 
         # Adicionar uma coluna contendo o nome do arquivo Parquet
         parquet_df_with_filename = parquet_df_with_filepath.withColumn("_filename", substring_index(input_file_name(), "/", -1))
