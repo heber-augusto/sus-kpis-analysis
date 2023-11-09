@@ -1,9 +1,17 @@
 name: Update bronze layer
 run-name: ${{ github.actor }} is updating analysis datasets 🚀
 on: 
-  workflow_dispatch:     
-  schedule:
-    - cron:  '0 10 * * *'
+  workflow_dispatch:
+    inputs:
+      sus_file_group:
+        description: 'SUS File Group'
+        required: true
+        default: 'SIA'
+      sus_file_type:
+        description: 'SUS File Type'
+        required: true
+        default: 'PA'        
+
     
 jobs:
   Update-Bronze-Layer:
@@ -38,6 +46,8 @@ jobs:
           sudo sh ./sia/etls/bin/setup_spark_env.sh './'
 
           echo "running script"
+          export SUS_FILE_GROUP=${{ github.event.inputs.sus_file_group}}
+          export SUS_FILE_TYPE=${{ github.event.inputs.sus_file_type}}          
           python3 ./sia/etls/update-datasus-bronze-layer.py
 
       - run: echo "🍏 This job's status is ${{ job.status }}." 
