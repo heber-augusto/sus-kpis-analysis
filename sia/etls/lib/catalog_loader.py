@@ -1,5 +1,19 @@
 from google.cloud import storage
 
+def get_folders_from_prefix(storage_client, bucket_id, prefix):
+    blobs = storage_client.list_blobs(
+        bucket_or_name = bucket_id,
+        prefix=prefix,  # <- you need the trailing slash
+        delimiter="/")
+
+    temp_blobs = [blob for blob in blobs]
+    # Dividir a string usando '/' como delimitador e pegar o último elemento
+    folder_list = [ \
+      prefix.split('/')[-2]
+      for prefix in blobs.prefixes]
+    return folder_list
+
+
 class DeltaLakeDatabaseGsCreator:
     def __init__(self, spark_session, storage_client, gs_bucket_id, database_location, database_name):
         self.spark_session = spark_session
@@ -50,3 +64,22 @@ class DeltaLakeDatabaseGsCreator:
             #print(f"Tabela {table_name} criada com comando {create_table_query}")
         
         print("Recriação das tabelas concluída.")
+
+
+def load_entire_catalog(spark_session, storage_client, bucket_id, lake_folder, lake_zones = ['bronze', 'silver']):
+    for lake_zone in lake_zones:
+        database_list = get_folders_from_prefix(
+            storage_client, 
+            bucket_id, 
+            prefix = f'{lake_prefix}/{lake_zone}/')
+        print(database_list)
+        for database_name in database_list:
+            database_location = f'{lake_prefix}/{lake_zone}'  # Substitua com o local do seu banco de dados Delta Lake
+            db_creator = DeltaLakeDatabaseGsCreator(
+                spark_session = spark_session,
+                storage_client = storage_client,
+                gs_bucket_id = bucket_id,
+                database_location = database_location,
+                database_name = database_name.replace('.db', ''))
+            db_creator.create_database(use_db_folder_path = (datalake_mode == 'escrita'))
+            db_creator.recreate_tables()
