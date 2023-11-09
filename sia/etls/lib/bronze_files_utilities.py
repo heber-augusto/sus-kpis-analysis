@@ -38,7 +38,7 @@ def get_parquet_files_from_gs_storage(storage_client, bucket_name, prefix_patter
     return df
 
 def get_pending_files_from_bronze(storage_client, bucket_name, spark_session, file_group, file_type):
-    prefix_pattern = f'{project_folder_name}/[^/]+/[^/]+/[^/]+/{file_group.upper()}/{file_type.upper()}/[^/]+\.parquet\.gzip'
+    prefix_pattern = f'monitor/[^/]+/[^/]+/[^/]+/{file_group.upper()}/{file_type.upper()}/[^/]+\.parquet\.gzip'
     parquet_df = get_parquet_files_from_gs_storage(
         storage_client, 
         bucket_name, 
