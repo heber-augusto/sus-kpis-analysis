@@ -38,7 +38,7 @@ jobs:
           sudo sh ./sia/etls/bin/setup_spark_env.sh './'
 
           echo "running script"
-          python3 ./sia/etls/update-bronze-layer.py
+          python3 ./sia/etls/update-datasus-bronze-layer.py
 
       - run: echo "🍏 This job's status is ${{ job.status }}." 
       - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
