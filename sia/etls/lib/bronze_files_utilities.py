@@ -3,7 +3,7 @@ from pyspark.sql.functions import col
 from pyspark.sql.functions import to_timestamp
 import re
 
-def get_parquet_files_from_gs_storage(storage_client, bucket_name, prefix_pattern):
+def get_parquet_files_from_gs_storage(storage_client, bucket_name, spark_session, prefix_pattern):
     # Acesse o bucket desejado
     bucket = storage_client.get_bucket(bucket_name)
 
@@ -25,7 +25,7 @@ def get_parquet_files_from_gs_storage(storage_client, bucket_name, prefix_patter
             arquivos_parquet_com_data.append(arquivo_info)
 
     # Crie um DataFrame a partir da lista de dicionários
-    df = spark.createDataFrame(arquivos_parquet_com_data)
+    df = spark_session.createDataFrame(arquivos_parquet_com_data)
 
     # Ajuste o formato da coluna 'data_criacao' para corresponder ao formato desejado
     df = df.withColumn("file_modification_time", to_timestamp(col("data_criacao"), "yyyy-MM-dd HH:mm:ss.SSS"))
