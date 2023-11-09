@@ -66,7 +66,7 @@ class DeltaLakeDatabaseGsCreator:
         print("Recriação das tabelas concluída.")
 
 
-def load_entire_catalog(spark_session, storage_client, bucket_id, lake_folder, lake_zones = ['bronze', 'silver']):
+def load_entire_catalog(spark_session, storage_client, bucket_id, lake_prefix, lake_zones = ['bronze', 'silver']):
     for lake_zone in lake_zones:
         database_list = get_folders_from_prefix(
             storage_client, 
