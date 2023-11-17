@@ -72,8 +72,8 @@ if __name__ == "__main__":
         storage_client = storage_client,
         bucket_name = bucket_id,
         spark_session = spark, 
-        file_group = 'SIA', 
-        file_type='PA')
+        file_group = file_group, 
+        file_type=file_type)
 
     print(f'encontrados {len(pending_files_path)} arquivos fora da tabela')
     processed_files = []
