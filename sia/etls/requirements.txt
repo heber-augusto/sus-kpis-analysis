@@ -4,3 +4,4 @@ imagehash
 delta-spark==2.4.0
 google-cloud-storage
 pytz
+psutil
