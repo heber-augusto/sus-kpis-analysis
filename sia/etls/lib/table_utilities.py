@@ -1,5 +1,13 @@
 from delta.tables import *
 
+def table_exists(spark, database, table):
+    try:
+        delta_table = DeltaTable.forName(spark, f"{database}.{table}")
+        return True
+    except:
+        return False
+
+
 def vacuum_tables_from_database(spark_session, database_name, retention_hours=24):
     table_list_df = spark_session.sql(f"SHOW TABLES FROM {database_name};")
     for table_row in table_list_df.collect():
