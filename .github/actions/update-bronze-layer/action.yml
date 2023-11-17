@@ -8,6 +8,9 @@ inputs:
   sus_file_type:
     description: 'SUS File Type'
     required: true
+  gcp_credentials:
+    description: 'Credenciais GCP'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -30,7 +33,7 @@ runs:
     - name: 'google-auth'
       uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: '${{ secrets.gcp_credentials }}'
+        credentials_json: ${{ inputs.gcp_credentials }}
       shell: bash
     - name: Download and prepare Spark
       run: |
