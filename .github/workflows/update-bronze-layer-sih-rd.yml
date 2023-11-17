@@ -16,3 +16,4 @@ jobs:
       with:
         sus_file_group: 'SIH'
         sus_file_type: 'RD'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
