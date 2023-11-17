@@ -25,7 +25,7 @@ bucket_id = 'observatorio-oncologia'
 project_folder_name = 'monitor'
 
 #nome da pasta onde estamos criando o delta lake, dentro do bucket
-lake_prefix = "lake-rosa-dev"
+lake_prefix = "lake-rosa-prd"
 
 # Cria a sessão spark
 spark = create_gs_spark_session(
