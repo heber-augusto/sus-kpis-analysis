@@ -1,4 +1,5 @@
 name: 'Update Bronze Layer'
+shell: bash
 description: 'Update Bronze Layer using SUS file type and group'
 author: 'Heber A. Scachetti'
 inputs:
