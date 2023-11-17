@@ -19,3 +19,5 @@ jobs:
         sus_file_group: 'SIA'
         sus_file_type: 'AR'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        max_files: '500'
+        max_time: '18000'        
