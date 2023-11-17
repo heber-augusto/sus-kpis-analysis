@@ -34,7 +34,6 @@ runs:
       uses: 'google-github-actions/auth@v1'
       with:
         credentials_json: ${{ inputs.gcp_credentials }}
-      shell: bash
     - name: Download and prepare Spark
       run: |
         echo "enviroment setup"        
@@ -56,4 +55,3 @@ runs:
     - run: echo "🍏 This job's status is ${{ job.status }}." 
       shell: bash
     - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
-      shell: bash
