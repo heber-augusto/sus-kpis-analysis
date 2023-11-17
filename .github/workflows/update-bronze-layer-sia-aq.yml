@@ -2,7 +2,8 @@ name: Update Bronze Layer SIA-AQ
 run-name: ${{ github.actor }} is  Update Bronze Layer SIA-AQ 🚀
 on: 
   workflow_dispatch:
-
+  schedule:
+    - cron:  '0 0 * * *'
 jobs:
   update-bronze-layer:
     runs-on: ubuntu-latest
