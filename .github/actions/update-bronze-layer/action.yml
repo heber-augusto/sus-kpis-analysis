@@ -42,23 +42,24 @@ runs:
         credentials_json: ${{ inputs.gcp_credentials }}
     - name: Download and prepare Spark
       run: |
-        echo "enviroment setup"        
+        echo "enviroment setup"
+        cd ..
 
-        pip3 install -r ./sia/etls/requirements.txt          
+        pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
 
         export PYTHONHASHSEED=1234
         export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
         export SPARK_HOME=./spark-3.4.1-bin-hadoop3
         export SPARK_VERSION=3.4.1
         
-        sudo sh ./sia/etls/bin/setup_spark_env.sh './'
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh './'
 
         echo "running script"
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
         export SUS_FILE_TYPE=${{ inputs.sus_file_type }}
         export MAX_FILES=${{ inputs.max_files }}          
         export MAX_TIME=${{ inputs.max_time }}
-        python3 ./sia/etls/update-datasus-bronze-layer.py
+        python3 ./sus-kpis-analysis/sia/etls/update-datasus-bronze-layer.py
       shell: bash
     - run: echo "🍏 This job's status is ${{ job.status }}." 
       shell: bash
