@@ -11,6 +11,12 @@ inputs:
   gcp_credentials:
     description: 'Credenciais GCP'
     required: true
+  max_files:
+    description: 'Número máximo de arquivos a serem processados'
+    required: true
+  max_time:
+    description: 'Tempo máximo de processamento de arquivos (segundos)'
+    required: true    
 runs:
   using: 'composite'
   steps:
@@ -49,7 +55,9 @@ runs:
 
         echo "running script"
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
-        export SUS_FILE_TYPE=${{ inputs.sus_file_type }}          
+        export SUS_FILE_TYPE=${{ inputs.sus_file_type }}
+        export MAX_FILES=${{ inputs.max_files }}          
+        export MAX_TIME=${{ inputs.max_time }}
         python3 ./sia/etls/update-datasus-bronze-layer.py
       shell: bash
     - run: echo "🍏 This job's status is ${{ job.status }}." 
