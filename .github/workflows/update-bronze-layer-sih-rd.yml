@@ -1,0 +1,20 @@
+name: Update Bronze Layer SIH-RD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  meuJob:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v2
+
+    - name: Executar Minha Ação Python
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'SIH'
+        sus_file_type: 'RD'
