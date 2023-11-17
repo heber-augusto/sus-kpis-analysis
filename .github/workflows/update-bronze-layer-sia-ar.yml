@@ -2,6 +2,8 @@ name: Update Bronze Layer SIA-AR
 run-name: ${{ github.actor }} is  Update Bronze Layer SIA-AR 🚀
 on: 
   workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'  
 
 jobs:
   update-bronze-layer:
