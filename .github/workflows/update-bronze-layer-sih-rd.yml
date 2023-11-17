@@ -1,12 +1,10 @@
 name: Update Bronze Layer SIH-RD
-
-on:
-  push:
-    branches:
-      - main
+run-name: ${{ github.actor }} is  Update Bronze Layer SIH-RD 🚀
+on: 
+  workflow_dispatch:
 
 jobs:
-  meuJob:
+  update-bronze-layer:
     runs-on: ubuntu-latest
 
     steps:
