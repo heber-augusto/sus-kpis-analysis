@@ -1,0 +1,19 @@
+name: Update Bronze Layer SIA-AQ
+run-name: ${{ github.actor }} is  Update Bronze Layer SIA-AQ 🚀
+on: 
+  workflow_dispatch:
+
+jobs:
+  update-bronze-layer:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v2
+
+    - name: Executar Minha Ação Python
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'SIA'
+        sus_file_type: 'AQ'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
