@@ -1,5 +1,5 @@
 name: Update Bronze Layer SIA-PA
-run-name: ${{ github.actor }} is  Update Bronze Layer SIH-PA 🚀
+run-name: ${{ github.actor }} is  Update Bronze Layer SIA-PA 🚀
 on: 
   workflow_dispatch:
 
