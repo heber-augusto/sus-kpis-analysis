@@ -1,0 +1,77 @@
+name: Update Bronze Layer CNES
+run-name: ${{ github.actor }} is  Update Bronze Layer CNES Files 🚀
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'  
+
+jobs:
+  update-bronze-layer:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v2
+
+    - name: Update Bronze Layer CNES DC
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'DC'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Update Bronze Layer CNES EP
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'EP'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Update Bronze Layer CNES EQ
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'EQ'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Update Bronze Layer CNES HB
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'HB'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+
+    - name: Update Bronze Layer CNES IN
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'IN'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}        
+
+    - name: Update Bronze Layer CNES LT
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'LT'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
+
+    - name: Update Bronze Layer CNES PF
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'PF'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
+
+    - name: Update Bronze Layer CNES RC
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'RC'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
+
+    - name: Update Bronze Layer CNES SR
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'SR'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}      
