@@ -1,0 +1,32 @@
+name: Update Bronze Layer SIA (AM e BI)
+run-name: ${{ github.actor }} is  Update Bronze Layer SIA (AM e BI) 🚀
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'  
+
+jobs:
+  update-bronze-layer:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v2
+
+    - name: Update Bronze Layer SIA BI
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'SIA'
+        sus_file_type: 'BI'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        max_files: '500'
+        max_time: '9000'
+
+    - name: Update Bronze Layer SIA AM
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'SIA'
+        sus_file_type: 'AM'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        max_files: '500'
+        max_time: '9000'
