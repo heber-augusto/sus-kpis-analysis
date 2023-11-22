@@ -48,7 +48,9 @@ def get_pending_files_from_bronze(storage_client, bucket_name, spark_session, fi
     parquet_df_with_filepath = (parquet_df
         .selectExpr("_filepath", "file_modification_time as current_file_modification_time")
     ).distinct()
-
+    
+    total_file_system = parquet_df_with_filepath.count()
+    
     processed_files_df = spark_session.sql(f"""
       SELECT distinct _filepath, file_modification_time
       FROM {file_group.lower()}_bronze.{file_type.lower()}""")
@@ -61,4 +63,10 @@ def get_pending_files_from_bronze(storage_client, bucket_name, spark_session, fi
     (file_modification_time is NULL) OR 
     (current_file_modification_time != file_modification_time)
     """)
-    return [row['_filepath'] for row in pending_files.collect()]
+    pending_result = [row['_filepath'] for row in pending_files.collect()]
+
+    pending_count = len(pending_result)
+
+    print(f"{file_group}-{file_type}: {(100* (total_file_system - pending_count) / total_file_system):.2f}% processados de um total de {total_file_system} arquivos ")
+
+    return pending_result
