@@ -19,7 +19,7 @@ project_folder_name = 'monitor'
 project_folder_name = 'monitor'
 
 #nome da pasta onde estamos criando o delta lake, dentro do bucket
-dev_lake_name = "lake-rosa-dev"
+dev_lake_name = "lake-rosa-prd"
 
 # zona (define a pasta dentro do delta lake)
 lake_zone = "silver"
