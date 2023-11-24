@@ -20,7 +20,7 @@ jobs:
         sus_file_type: 'LT'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
         max_files: '1000'
-        max_time: '1800'        
+        max_time: '5400'        
 
     - name: Update Bronze Layer CNES PF
       uses: ./.github/actions/update-bronze-layer
