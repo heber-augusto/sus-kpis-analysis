@@ -1,0 +1,59 @@
+name: Update Bronze Layer CNES Wave 1 (DC, EP, EQ, HB, IN)
+run-name: ${{ github.actor }} is  Update Bronze Layer CNES Files Wave 1 (DC, EP, EQ, HB, IN) 🚀
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron:  '0 0 * * *'  
+
+jobs:
+  update-bronze-layer:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v2
+
+    - name: Update Bronze Layer CNES DC
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'DC'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        max_files: '1000'
+        max_time: '3600'
+
+    - name: Update Bronze Layer CNES EP
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'EP'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        max_files: '1000'
+        max_time: '3600'        
+
+    - name: Update Bronze Layer CNES EQ
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'EQ'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        max_files: '1000'
+        max_time: '3600'        
+
+    - name: Update Bronze Layer CNES HB
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'HB'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        max_files: '1000'
+        max_time: '3600'        
+
+    - name: Update Bronze Layer CNES IN
+      uses: ./.github/actions/update-bronze-layer
+      with:
+        sus_file_group: 'CNES'
+        sus_file_type: 'IN'
+        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}        
+        max_files: '1000'
+        max_time: '3600'        
