@@ -3,7 +3,7 @@ import time
 
 from pyspark.sql.functions import input_file_name
 from lib.catalog_loader import DeltaLakeDatabaseGsCreator, load_entire_catalog
-from lib.table_utilities import vacuum_tables_from_database
+from lib.table_utilities import vacuum_table
 from lib.gs_spark_session import create_gs_spark_session
 from lib.bronze_files_utilities import get_pending_files_from_bronze
 from lib.delta_table_creators import ParquetToDelta
@@ -92,6 +92,14 @@ if __name__ == "__main__":
         except:
             print(f'falha processando arquivo {pending_file_path}')
             continue
+
+    # realiza limpeza de tabela delta, considerando 24 horas de retenção
+    vacuum_table(
+        spark_session = spark,
+        database_name = database_name,
+        table_name = table_name,        
+        retention_hours = 24
+    )
 
 
 
