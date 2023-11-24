@@ -19,7 +19,7 @@ jobs:
         sus_file_group: 'SIA'
         sus_file_type: 'BI'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '500'
+        max_files: '1000'
         max_time: '9000'
 
     - name: Update Bronze Layer SIA AM
@@ -28,5 +28,5 @@ jobs:
         sus_file_group: 'SIA'
         sus_file_type: 'AM'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '500'
+        max_files: '1000'
         max_time: '9000'
