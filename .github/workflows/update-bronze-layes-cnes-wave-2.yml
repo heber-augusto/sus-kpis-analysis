@@ -20,7 +20,7 @@ jobs:
         sus_file_type: 'LT'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
         max_files: '1000'
-        max_time: '5400'        
+        max_time: '4800'        
 
     - name: Update Bronze Layer CNES PF
       uses: ./.github/actions/update-bronze-layer
@@ -29,7 +29,7 @@ jobs:
         sus_file_type: 'PF'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
         max_files: '1000'
-        max_time: '5400'        
+        max_time: '4800'        
 
     - name: Update Bronze Layer CNES RC
       uses: ./.github/actions/update-bronze-layer
@@ -38,7 +38,7 @@ jobs:
         sus_file_type: 'RC'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
         max_files: '1000'
-        max_time: '5400'        
+        max_time: '4800'        
 
     - name: Update Bronze Layer CNES SR
       uses: ./.github/actions/update-bronze-layer
@@ -47,4 +47,4 @@ jobs:
         sus_file_type: 'SR'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}      
         max_files: '1000'
-        max_time: '5400'        
+        max_time: '4800'        
