@@ -1,5 +1,5 @@
-name: Update Bronze Layer CNES 
-run-name: ${{ github.actor }} is  Update Bronze Layer CNES Files 🚀
+name: Update Bronze Layer CNES Wave 2 (LT, PF, RC, SR)
+run-name: ${{ github.actor }} is  Update Bronze Layer CNES Wave 2 (LT, PF, RC, SR) 🚀
 on: 
   workflow_dispatch:
   schedule:
@@ -13,58 +13,13 @@ jobs:
     - name: Checkout do código
       uses: actions/checkout@v2
 
-    - name: Update Bronze Layer CNES DC
-      uses: ./.github/actions/update-bronze-layer
-      with:
-        sus_file_group: 'CNES'
-        sus_file_type: 'DC'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '500'
-        max_time: '1800'
-
-    - name: Update Bronze Layer CNES EP
-      uses: ./.github/actions/update-bronze-layer
-      with:
-        sus_file_group: 'CNES'
-        sus_file_type: 'EP'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '500'
-        max_time: '1800'        
-
-    - name: Update Bronze Layer CNES EQ
-      uses: ./.github/actions/update-bronze-layer
-      with:
-        sus_file_group: 'CNES'
-        sus_file_type: 'EQ'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '500'
-        max_time: '1800'        
-
-    - name: Update Bronze Layer CNES HB
-      uses: ./.github/actions/update-bronze-layer
-      with:
-        sus_file_group: 'CNES'
-        sus_file_type: 'HB'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '500'
-        max_time: '1800'        
-
-    - name: Update Bronze Layer CNES IN
-      uses: ./.github/actions/update-bronze-layer
-      with:
-        sus_file_group: 'CNES'
-        sus_file_type: 'IN'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}        
-        max_files: '500'
-        max_time: '1800'        
-
     - name: Update Bronze Layer CNES LT
       uses: ./.github/actions/update-bronze-layer
       with:
         sus_file_group: 'CNES'
         sus_file_type: 'LT'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
-        max_files: '500'
+        max_files: '1000'
         max_time: '1800'        
 
     - name: Update Bronze Layer CNES PF
@@ -73,8 +28,8 @@ jobs:
         sus_file_group: 'CNES'
         sus_file_type: 'PF'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
-        max_files: '500'
-        max_time: '1800'        
+        max_files: '1000'
+        max_time: '5400'        
 
     - name: Update Bronze Layer CNES RC
       uses: ./.github/actions/update-bronze-layer
@@ -82,8 +37,8 @@ jobs:
         sus_file_group: 'CNES'
         sus_file_type: 'RC'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }} 
-        max_files: '500'
-        max_time: '1800'        
+        max_files: '1000'
+        max_time: '5400'        
 
     - name: Update Bronze Layer CNES SR
       uses: ./.github/actions/update-bronze-layer
@@ -91,5 +46,5 @@ jobs:
         sus_file_group: 'CNES'
         sus_file_type: 'SR'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}      
-        max_files: '500'
-        max_time: '1800'        
+        max_files: '1000'
+        max_time: '5400'        
