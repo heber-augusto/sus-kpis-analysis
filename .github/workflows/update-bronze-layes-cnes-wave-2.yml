@@ -1,4 +1,4 @@
-name: Update Bronze Layer CNES
+name: Update Bronze Layer CNES 
 run-name: ${{ github.actor }} is  Update Bronze Layer CNES Files 🚀
 on: 
   workflow_dispatch:
