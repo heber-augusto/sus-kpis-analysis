@@ -15,7 +15,7 @@ def vacuum_table(spark_session, database_name, table_name, retention_hours=24):
         print(f'vacuum completed for table {table_address}')
     except:
         print(f'error during vacuum for table {table_address}')
-        continue
+        pass
 
 
 def vacuum_tables_from_database(spark_session, database_name, retention_hours=24):
