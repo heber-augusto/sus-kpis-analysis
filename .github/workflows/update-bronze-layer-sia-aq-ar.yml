@@ -18,7 +18,7 @@ jobs:
         sus_file_group: 'SIA'
         sus_file_type: 'AQ'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '250'
+        max_files: '1000'
         max_time: '9000'
 
     - name: Executar Minha Ação Python
@@ -27,6 +27,6 @@ jobs:
         sus_file_group: 'SIA'
         sus_file_type: 'AR'
         gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
-        max_files: '250'
+        max_files: '1000'
         max_time: '9000'
         
