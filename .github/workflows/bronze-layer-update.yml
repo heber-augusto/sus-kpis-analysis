@@ -40,8 +40,8 @@ jobs:
 
           export PYTHONHASHSEED=1234
           export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-          export SPARK_HOME=./spark-3.4.1-bin-hadoop3
-          export SPARK_VERSION=3.4.1
+          export SPARK_HOME=./spark-3.4.2-bin-hadoop3
+          export SPARK_VERSION=3.4.2
           
           sudo sh ./sia/etls/bin/setup_spark_env.sh './'
 
