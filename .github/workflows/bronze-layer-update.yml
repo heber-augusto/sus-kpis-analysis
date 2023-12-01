@@ -42,6 +42,8 @@ jobs:
           export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
           export SPARK_HOME=./spark-3.4.2-bin-hadoop3
           export SPARK_VERSION=3.4.2
+          export MAX_FILES=5000          
+          export MAX_TIME=18000
           
           sudo sh ./sia/etls/bin/setup_spark_env.sh './'
 
