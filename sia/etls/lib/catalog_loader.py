@@ -114,7 +114,7 @@ class DeltaLakeDatabaseFsCreator:
 
         print(f"Banco de dados {self.database_name} criado.")
 
-    def recreate_tables(self):
+    def recreate_tables(self, table_filter = None):
         # Lista arquivos do caminho
         print(f"listando conteúdos do caminho {self.database_location} e database {self.database_name}")
         # Lista os blobs no bucket
@@ -125,7 +125,9 @@ class DeltaLakeDatabaseFsCreator:
         table_list = get_folders_from_prefix_fs(prefix)
         print(f'table_list: {table_list}')
         for table_name in table_list:
-            #print(table_name)
+            final_table_name = f'{self.database_name}.{table_name}'
+            if (table_filter != None) and (final_table_name not in table_filter):
+                continue
 
             # Criação da tabela Delta Lake
             delta_location = f"{self.db_folder_path}/{table_name}"
@@ -140,13 +142,15 @@ class DeltaLakeDatabaseFsCreator:
         print("Recriação das tabelas concluída.")
 
 
-def load_entire_catalog_fs(spark_session, lake_prefix, lake_zones = ['bronze', 'silver'], use_db_folder_path = True):
+def load_entire_catalog_fs(spark_session, lake_prefix, lake_zones = ['bronze', 'silver'], use_db_folder_path = True, database_filter = None, table_filter = None):
     for lake_zone in lake_zones:
         database_list = get_folders_from_prefix_fs(
             prefix = f'{lake_prefix}/{lake_zone}/')
 
         print(database_list)
         for database_name in database_list:
+            if (database_filter != None) and (database_name not in database_filter):
+                continue
             database_location = f'{lake_prefix}/{lake_zone}'  # Substitua com o local do seu banco de dados Delta Lake
             db_creator = DeltaLakeDatabaseFsCreator(
                 spark_session = spark_session,
