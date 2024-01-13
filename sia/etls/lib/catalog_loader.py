@@ -122,7 +122,7 @@ class DeltaLakeDatabaseFsCreator:
         print(f'prefix: {prefix}')
 
         # Dividir a string usando '/' como delimitador e pegar o último elemento
-        table_list = get_folders_from_prefix_gd(prefix)
+        table_list = get_folders_from_prefix_fs(prefix)
         print(f'table_list: {table_list}')
         for table_name in table_list:
             #print(table_name)
