@@ -157,6 +157,6 @@ def load_entire_catalog_fs(spark_session, lake_prefix, lake_zones = ['bronze', '
                 database_location = database_location,
                 database_name = database_name.replace('.db', ''))
             db_creator.create_database(use_db_folder_path)
-            db_creator.recreate_tables()
+            db_creator.recreate_tables(table_filter)
 
 
