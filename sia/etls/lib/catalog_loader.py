@@ -1,4 +1,6 @@
 from google.cloud import storage
+import os
+from pathlib import Path
 
 def get_folders_from_prefix(storage_client, bucket_id, prefix):
     blobs = storage_client.list_blobs(
@@ -83,3 +85,74 @@ def load_entire_catalog(spark_session, storage_client, bucket_id, lake_prefix, l
                 database_name = database_name.replace('.db', ''))
             db_creator.create_database(use_db_folder_path)
             db_creator.recreate_tables()
+
+
+
+def get_folders_from_prefix_fs(prefix):
+    p = Path(prefix)
+    subdirectories = [x.__str__() for x in p.iterdir() if (x.is_dir() & (x.__str__().find('.ipynb_checkpoints') < 0))]
+    return [ \
+          directory.split('/')[-1]
+          for directory in subdirectories]
+
+
+class DeltaLakeDatabaseFsCreator:
+    def __init__(self, spark_session, database_location, database_name):
+        self.spark_session = spark_session
+        self.database_location = database_location
+        self.database_name = database_name
+        self.db_folder_path = f'{self.database_location}/{self.database_name}.db'
+
+    def create_database(self, use_db_folder_path = True):
+        if use_db_folder_path == True:
+            query_db_folder_path = f"LOCATION '{self.db_folder_path}'"
+        else:
+            query_db_folder_path = ""
+        # Criação do banco de dados Delta Lake
+        create_db_query = f"CREATE DATABASE IF NOT EXISTS {self.database_name} {query_db_folder_path}"
+        self.spark_session.sql(create_db_query)
+
+        print(f"Banco de dados {self.database_name} criado.")
+
+    def recreate_tables(self):
+        # Lista arquivos do caminho
+        print(f"listando conteúdos do caminho {self.database_location} e database {self.database_name}")
+        # Lista os blobs no bucket
+        prefix = f'{self.database_location}/{self.database_name}.db/'
+        print(f'prefix: {prefix}')
+
+        # Dividir a string usando '/' como delimitador e pegar o último elemento
+        table_list = get_folders_from_prefix_gd(prefix)
+        print(f'table_list: {table_list}')
+        for table_name in table_list:
+            #print(table_name)
+
+            # Criação da tabela Delta Lake
+            delta_location = f"{self.db_folder_path}/{table_name}"
+            #print(delta_location)
+
+            # Criação da tabela Delta Lake
+            create_table_query = f"CREATE TABLE IF NOT EXISTS {self.database_name}.{table_name} USING delta LOCATION '{delta_location}'"
+            self.spark_session.sql(create_table_query)
+            print(f"Tabela {table_name} criada")
+            print(f"Tabela {table_name} criada com comando {create_table_query}")
+
+        print("Recriação das tabelas concluída.")
+
+
+def load_entire_catalog_fs(spark_session, lake_prefix, lake_zones = ['bronze', 'silver'], use_db_folder_path = True):
+    for lake_zone in lake_zones:
+        database_list = get_folders_from_prefix_fs(
+            prefix = f'{lake_prefix}/{lake_zone}/')
+
+        print(database_list)
+        for database_name in database_list:
+            database_location = f'{lake_prefix}/{lake_zone}'  # Substitua com o local do seu banco de dados Delta Lake
+            db_creator = DeltaLakeDatabaseFsCreator(
+                spark_session = spark_session,
+                database_location = database_location,
+                database_name = database_name.replace('.db', ''))
+            db_creator.create_database(use_db_folder_path)
+            db_creator.recreate_tables()
+
+
