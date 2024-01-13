@@ -19,7 +19,7 @@ if __name__ == '__main__':
     with open(args['config_path'], 'w') as fd2:
         for content in config_content:
             if content.find('team_drive_id=') >= 0:
-                fd2.write(f'team_drive_id={args['team_drive_id']}\n')
+                fd2.write(f"team_drive_id={args['team_drive_id']}\n")
             else:
                 fd2.write(content)
 
