@@ -159,4 +159,23 @@ def load_entire_catalog_fs(spark_session, lake_prefix, lake_zones = ['bronze', '
             db_creator.create_database(use_db_folder_path)
             db_creator.recreate_tables(table_filter)
 
+def load_entire_catalog_fs_v2(
+      spark_session, 
+      databases_path, 
+      use_db_folder_path = True, 
+      database_filter = None, 
+      table_filter = None):
 
+      database_list = get_folders_from_prefix_fs(
+          prefix = databases_path)
+
+      print(database_list)
+      for database_name in database_list:
+          if (database_filter != None) and (database_name not in database_filter):
+              continue
+          db_creator = DeltaLakeDatabaseFsCreator(
+              spark_session = spark_session,
+              database_location = databases_path,
+              database_name = database_name.replace('.db', ''))
+          db_creator.create_database(use_db_folder_path)
+          db_creator.recreate_tables(table_filter)
