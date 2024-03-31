@@ -64,20 +64,25 @@ runs:
         
         sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh '.'
         echo "creating dalatake folder"
-        export DATALAKE_PREFIX=${{ github.workspace }}/datalake
+        export REPO_ROOT_FOLDER=${{ github.workspace }}../
+        export DATALAKE_PREFIX=$REPO_ROOT_FOLDER/datalake
+        echo $REPO_ROOT_FOLDER
+        echo $DATALAKE_PREFIX
+        
         mkdir ${DATALAKE_PREFIX}
         echo "initializing env variables"
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
         export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
         export SERVICE_ACCOUNT_USER=${{ inputs.service_account_user }}
         export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
+        
 
         echo "installing google-drive-ocamlfuse"
         sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
         echo "mounting raw drive"
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-raw' $GOOGLE_APPLICATION_CREDENTIALS ${{ github.workspace }}
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-raw' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
         echo "mounting bronze drive"
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $GOOGLE_APPLICATION_CREDENTIALS ${{ github.workspace }}  
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
 
         echo "running script"
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
