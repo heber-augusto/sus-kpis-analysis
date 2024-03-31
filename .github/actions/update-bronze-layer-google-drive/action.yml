@@ -70,6 +70,7 @@ runs:
         echo $DATALAKE_PREFIX
         
         mkdir ${DATALAKE_PREFIX}
+        chmod o+w ${DATALAKE_PREFIX}/.
         echo "initializing env variables"
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
         export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
