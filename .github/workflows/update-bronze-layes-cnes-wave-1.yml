@@ -27,7 +27,7 @@ jobs:
         sus_file_type: 'DC'
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '18000'
+        max_time: '4800'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}  
 
     - name: Updating CNES EP delta Table
@@ -37,7 +37,7 @@ jobs:
         sus_file_type: 'EP'
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '18000'
+        max_time: '4800'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
 
     - name: Updating CNES EQ delta Table
@@ -47,7 +47,7 @@ jobs:
         sus_file_type: 'EQ'
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '18000'
+        max_time: '4800'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}       
 
     - name: Updating CNES HB delta Table
@@ -57,7 +57,7 @@ jobs:
         sus_file_type: 'HB'
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '18000'
+        max_time: '4800'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
 
     - name: Updating CNES IN delta Table
@@ -67,5 +67,5 @@ jobs:
         sus_file_type: 'IN'
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '18000'
+        max_time: '4800'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
