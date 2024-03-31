@@ -60,6 +60,11 @@ runs:
         export GOOGLE_RAW_DRIVE_ID=${{ secrets.GOOGLE_RAW_DRIVE_ID }}
         export SERVICE_ACCOUNT_USER=${{ secrets.SERVICE_ACCOUNT_USER }}
 
+        export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-bronze' $SERVICE_ACCOUNT_JSON './'
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $SERVICE_ACCOUNT_JSON '/content'  
+
         echo "running script"
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
         export SUS_FILE_TYPE=${{ inputs.sus_file_type }}
