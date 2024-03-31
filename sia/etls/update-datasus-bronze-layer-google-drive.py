@@ -103,7 +103,7 @@ if __name__ == "__main__":
     
         print(f'encontrados {len(done_files)} arquivos a serem atualizados')
         
-        ret = """for done_file in done_files:
+        for done_file in done_files:
             if (len(processed_files) >= max_files) or (time.time() - start_time) >= max_time:
                 stop_process = True
                 break      
@@ -131,7 +131,7 @@ if __name__ == "__main__":
             }
             fd = open(last_modified_path, 'w+')
             fd.write(json.dumps(checkpoint_file_dict))
-            fd.close()"""
+            fd.close()
     
     # realiza limpeza de tabela delta, considerando 24 horas de retenção
     #vacuum_table(
