@@ -12,3 +12,5 @@ wget -q https://storage.googleapis.com/hadoop-lib/gcs/gcs-connector-hadoop3-late
 echo "setting enviroment variables";
 
 mv "${1}gcs-connector-hadoop3-latest.jar" "${1}/spark-3.4.2-bin-hadoop3/jars"
+
+echo "spark env setup completed with success";
