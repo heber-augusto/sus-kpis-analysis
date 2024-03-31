@@ -64,7 +64,7 @@ runs:
         
         sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh '.'
         echo "creating dalatake folder"
-        export DATALAKE_PREFIX=./datalake
+        export DATALAKE_PREFIX=${{ github.workspace }}/datalake
         mkdir ${DATALAKE_PREFIX}
         echo "initializing env variables"
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
