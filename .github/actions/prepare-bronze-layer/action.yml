@@ -45,20 +45,24 @@ runs:
 
         pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
 
-        export PYTHONHASHSEED=1234
-        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-        export SPARK_HOME=./spark-3.4.2-bin-hadoop3
-        export SPARK_VERSION=3.4.2
-        
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh '.'
         echo "creating dalatake folder"
         export REPO_ROOT_FOLDER=/home/runner/work/sus-kpis-analysis
         export DATALAKE_PREFIX=${REPO_ROOT_FOLDER}/datalake
         echo $REPO_ROOT_FOLDER
         echo $DATALAKE_PREFIX
-        
         mkdir ${DATALAKE_PREFIX}
         chmod o+w ${DATALAKE_PREFIX}/.
+        
+        echo "spark setup"
+        export PYTHONHASHSEED=1234
+        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+        export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.2-bin-hadoop3
+        chmod o+w ${SPARK_HOME}/.
+        export SPARK_VERSION=3.4.2
+        
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh $REPO_ROOT_FOLDER
+
+        
         echo "initializing env variables"
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
         export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
