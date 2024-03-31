@@ -19,12 +19,6 @@ inputs:
     required: true
   google_raw_drive_id:
     description: 'google team driver raw id'
-    required: true
-  google_bronze_drive_id:
-    description: 'google team driver bronze id'
-    required: true
-  service_account_user:
-    description: 'google service account user'
     required: true    
     
 runs:
@@ -52,41 +46,13 @@ runs:
         credentials_json: ${{ inputs.gd_credentials }}
     - name: Download and prepare Spark
       run: |
-        echo "enviroment setup"
-        cd ..
-
-        pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
-
-        export PYTHONHASHSEED=1234
-        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-        export SPARK_HOME=./spark-3.4.2-bin-hadoop3
-        export SPARK_VERSION=3.4.2
-        
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh '.'
-        echo "creating dalatake folder"
+        echo "running script"
         export REPO_ROOT_FOLDER=/home/runner/work/sus-kpis-analysis
         export DATALAKE_PREFIX=${REPO_ROOT_FOLDER}/datalake
         echo $REPO_ROOT_FOLDER
-        echo $DATALAKE_PREFIX
-        
-        mkdir ${DATALAKE_PREFIX}
-        chmod o+w ${DATALAKE_PREFIX}/.
-        echo "initializing env variables"
-        export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
-        export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
-        export SERVICE_ACCOUNT_USER=${{ inputs.service_account_user }}
-        export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
-        
-
-        echo "installing google-drive-ocamlfuse"
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
-        echo "mounting raw drive"
-        chmod +x ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh 
-        ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-raw' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
-        echo "mounting bronze drive"
-        ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
-
-        echo "running script"
+        echo $DATALAKE_PREFIX        
+        export SPARK_HOME=./spark-3.4.2-bin-hadoop3        
+        export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}        
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
         export SUS_FILE_TYPE=${{ inputs.sus_file_type }}
         export MAX_FILES=${{ inputs.max_files }}          
