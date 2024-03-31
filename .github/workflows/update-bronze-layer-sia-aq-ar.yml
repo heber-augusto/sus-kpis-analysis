@@ -26,7 +26,7 @@ jobs:
         sus_file_group: 'SIA'
         sus_file_type: 'AQ'
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
-        max_files: '5'
+        max_files: '1000'
         max_time: '9000'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
 
@@ -37,7 +37,7 @@ jobs:
         sus_file_group: 'SIA'
         sus_file_type: 'AR'
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
-        max_files: '5'
+        max_files: '1000'
         max_time: '9000'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
         
