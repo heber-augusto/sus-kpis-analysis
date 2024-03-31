@@ -17,7 +17,7 @@ jobs:
       with:
         sus_file_group: 'SIA'
         sus_file_type: 'AQ'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
         max_time: '9000'
         google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
