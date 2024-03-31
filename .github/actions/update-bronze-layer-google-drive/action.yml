@@ -68,10 +68,15 @@ runs:
         mkdir ${DATALAKE_PREFIX}
         echo "initializing env variables"
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
+        echo "initializing env variables 2"
         export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
+        echo "initializing env variables 3"
         export SERVICE_ACCOUNT_USER=${{ inputs.service_account_user }}
+        echo "initializing env variables 4"
         export SERVICE_ACCOUNT_JSON=${{ inputs.gd_credentials }}
+        echo "initializing env variables 5"
         export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
+        echo "initializing env variables 6"
 
         echo "installing google-drive-ocamlfuse"
         sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
