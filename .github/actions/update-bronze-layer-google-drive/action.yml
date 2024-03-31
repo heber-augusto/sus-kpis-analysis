@@ -64,7 +64,7 @@ runs:
         
         sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh '.'
         echo "creating dalatake folder"
-        export REPO_ROOT_FOLDER=${{ github.workspace }}../
+        export REPO_ROOT_FOLDER=${{ github.workspace }}/../
         export DATALAKE_PREFIX=$REPO_ROOT_FOLDER/datalake
         echo $REPO_ROOT_FOLDER
         echo $DATALAKE_PREFIX
