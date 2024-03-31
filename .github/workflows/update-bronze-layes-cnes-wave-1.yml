@@ -3,8 +3,7 @@ run-name: ${{ github.actor }} is  Update Bronze Layer CNES Files Wave 1 (DC, EP,
 on: 
   workflow_dispatch:
   schedule:
-    - cron:  '0 0 * * *'  
-
+    - cron:  '0 0 * * *'
 jobs:
   update-bronze-layer:
     runs-on: ubuntu-latest
@@ -13,47 +12,60 @@ jobs:
     - name: Checkout do código
       uses: actions/checkout@v2
 
-    - name: Update Bronze Layer CNES DC
-      uses: ./.github/actions/update-bronze-layer
+    - name: Install spark and mount team google drive
+      uses: ./.github/actions/prepare-bronze-layer
+      with:
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
+        google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
+        service_account_user: ${{ secrets.SERVICE_ACCOUNT_USER }}
+
+    - name: Updating CNES DC delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'CNES'
         sus_file_type: 'DC'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '3600'
+        max_time: '18000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}  
 
-    - name: Update Bronze Layer CNES EP
-      uses: ./.github/actions/update-bronze-layer
+    - name: Updating CNES EP delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'CNES'
         sus_file_type: 'EP'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '3600'        
+        max_time: '18000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
 
-    - name: Update Bronze Layer CNES EQ
-      uses: ./.github/actions/update-bronze-layer
+    - name: Updating CNES EQ delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'CNES'
         sus_file_type: 'EQ'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '3600'        
+        max_time: '18000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}       
 
-    - name: Update Bronze Layer CNES HB
-      uses: ./.github/actions/update-bronze-layer
+    - name: Updating CNES HB delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'CNES'
         sus_file_type: 'HB'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '3600'        
+        max_time: '18000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
 
-    - name: Update Bronze Layer CNES IN
-      uses: ./.github/actions/update-bronze-layer
+    - name: Updating CNES IN delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'CNES'
         sus_file_type: 'IN'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}        
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '3600'        
+        max_time: '18000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
