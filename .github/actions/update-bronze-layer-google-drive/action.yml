@@ -39,7 +39,7 @@ runs:
     - name: 'google-auth'
       uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: ${{ inputs.gcp_credentials }}
+        credentials_json: '${{ secrets.gd_credentials }}'
     - name: Download and prepare Spark
       run: |
         echo "enviroment setup"
@@ -57,8 +57,8 @@ runs:
         export DATALAKE_PREFIX=${{ github.workspace }}/datalake
         mkdir ${DATALAKE_PREFIX}
 
-        export GOOGLE_RAW_DRIVE_ID=0AHytT_wAsk1oUk9PVA
-        export SERVICE_ACCOUNT_USER=acesso-escrita@monitor-rosa.iam.gserviceaccount.com
+        export GOOGLE_RAW_DRIVE_ID=${{ secrets.GOOGLE_RAW_DRIVE_ID }}
+        export SERVICE_ACCOUNT_USER=${{ secrets.SERVICE_ACCOUNT_USER }}
 
         echo "running script"
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
