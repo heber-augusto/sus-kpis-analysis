@@ -13,6 +13,7 @@ from lib.delta_table_creators import ParquetToDelta
 from google.cloud import storage
 
 json_filename = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', '')
+assert(json_filename != '')
 spark_home = os.getenv('SPARK_HOME','')
 file_group = os.getenv('SUS_FILE_GROUP','')
 assert(file_group != '')
