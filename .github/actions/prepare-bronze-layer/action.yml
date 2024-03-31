@@ -57,7 +57,6 @@ runs:
         export PYTHONHASHSEED=1234
         export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
         export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.2-bin-hadoop3
-        chmod o+w ${SPARK_HOME}/.
         export SPARK_VERSION=3.4.2
         
         sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh $REPO_ROOT_FOLDER
