@@ -12,7 +12,7 @@ jobs:
     - name: Checkout do código
       uses: actions/checkout@v2
 
-    - name: Executar Minha Ação Python
+    - name: Install spark and mount team google drive
       uses: ./.github/actions/prepare-bronze-layer
       with:
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
