@@ -3,8 +3,7 @@ run-name: ${{ github.actor }} is  Update Bronze Layer SIA (AM e BI) 🚀
 on: 
   workflow_dispatch:
   schedule:
-    - cron:  '0 0 * * *'  
-
+    - cron:  '0 0 * * *'
 jobs:
   update-bronze-layer:
     runs-on: ubuntu-latest
@@ -13,20 +12,30 @@ jobs:
     - name: Checkout do código
       uses: actions/checkout@v2
 
-    - name: Update Bronze Layer SIA BI
-      uses: ./.github/actions/update-bronze-layer
+    - name: Install spark and mount team google drive
+      uses: ./.github/actions/prepare-bronze-layer
+      with:
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
+        google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
+        service_account_user: ${{ secrets.SERVICE_ACCOUNT_USER }}
+
+    - name: Updating SIA BI delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'SIA'
         sus_file_type: 'BI'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
         max_time: '9000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
 
-    - name: Update Bronze Layer SIA AM
-      uses: ./.github/actions/update-bronze-layer
+    - name: Updating SIA BI delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'SIA'
         sus_file_type: 'AM'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
         max_time: '9000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
