@@ -101,7 +101,7 @@ if __name__ == "__main__":
             break
     
         print(f'encontrados {len(done_files)} arquivos a serem atualizados')
-    
+        return
         for done_file in done_files:
             if (len(processed_files) >= max_files) or (time.time() - start_time) >= max_time:
                 stop_process = True
