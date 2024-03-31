@@ -49,7 +49,7 @@ runs:
     - name: 'google-auth'
       uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: ${{ inputs.gcp_credentials }}
+        credentials_json: ${{ inputs.GD_CREDENTIALS }}
     - name: Download and prepare Spark
       run: |
         echo "enviroment setup"
@@ -70,7 +70,7 @@ runs:
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
         export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
         export SERVICE_ACCOUNT_USER=${{ inputs.service_account_user }}
-        export SERVICE_ACCOUNT_JSON=${{ inputs.gcp_credentials }}
+        export SERVICE_ACCOUNT_JSON=${{ inputs.GD_CREDENTIALS }}
         export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
         sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
         sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-raw' $SERVICE_ACCOUNT_JSON './'
