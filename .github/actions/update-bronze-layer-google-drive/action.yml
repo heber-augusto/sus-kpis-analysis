@@ -75,9 +75,9 @@ runs:
         echo "installing google-drive-ocamlfuse"
         sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
         echo "mounting raw drive"
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-raw' $GOOGLE_APPLICATION_CREDENTIALS '.'
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-raw' $GOOGLE_APPLICATION_CREDENTIALS ${{ github.workspace }}
         echo "mounting bronze drive"
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $GOOGLE_APPLICATION_CREDENTIALS '.'  
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $GOOGLE_APPLICATION_CREDENTIALS ${{ github.workspace }}  
 
         echo "running script"
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
