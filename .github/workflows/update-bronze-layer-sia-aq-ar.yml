@@ -28,7 +28,7 @@ jobs:
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
         max_time: '9000'
-        google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
 
 
     - name: Updating SIA-AR delta Table
@@ -39,5 +39,5 @@ jobs:
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
         max_time: '9000'
-        google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
         
