@@ -29,8 +29,6 @@ runs:
     - name: List files in the repository
       run: |
         ls ${{ github.workspace }}
-      shell: bash
-      run: |
         ls /home/runner/work/sus-kpis-analysis
       shell: bash      
     - name: 'google-auth'
