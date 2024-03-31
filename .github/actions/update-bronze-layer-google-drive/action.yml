@@ -63,15 +63,16 @@ runs:
         export SPARK_VERSION=3.4.2
         
         sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh './'
-
-        export DATALAKE_PREFIX=${{ github.workspace }}/datalake
+        echo "creating dalatake folder"
+        export DATALAKE_PREFIX=./datalake
         mkdir ${DATALAKE_PREFIX}
-
+        echo "initializing env variables"
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
         export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
         export SERVICE_ACCOUNT_USER=${{ inputs.service_account_user }}
         export SERVICE_ACCOUNT_JSON=${{ inputs.gd_credentials }}
         export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
+
         echo "installing google-drive-ocamlfuse"
         sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
         echo "mounting raw drive"
