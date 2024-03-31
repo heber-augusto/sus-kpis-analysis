@@ -1,0 +1,72 @@
+name: 'Update Bronze Layer Google Drive'
+description: 'Update Bronze Layer using SUS file type and group'
+author: 'Heber A. Scachetti'
+inputs:
+  sus_file_group:
+    description: 'SUS File Group'
+    required: true
+  sus_file_type:
+    description: 'SUS File Type'
+    required: true
+  gcp_credentials:
+    description: 'Credenciais GCP'
+    required: true
+  max_files:
+    description: 'Número máximo de arquivos a serem processados'
+    required: true
+  max_time:
+    description: 'Tempo máximo de processamento de arquivos (segundos)'
+    required: true    
+runs:
+  using: 'composite'
+  steps:
+    - run: echo "🎉 The job was triggered by a ${{ github.event_name }} event."
+      shell: bash
+    - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      shell: bash
+    - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      shell: bash
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      shell: bash
+    - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      shell: bash
+    - name: List files in the repository
+      run: |
+        ls ${{ github.workspace }}
+      shell: bash
+    - name: 'google-auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: ${{ inputs.gcp_credentials }}
+    - name: Download and prepare Spark
+      run: |
+        echo "enviroment setup"
+        cd ..
+
+        pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
+
+        export PYTHONHASHSEED=1234
+        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+        export SPARK_HOME=./spark-3.4.2-bin-hadoop3
+        export SPARK_VERSION=3.4.2
+        
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh './'
+
+        export DATALAKE_PREFIX=${{ github.workspace }}/datalake
+        mkdir ${DATALAKE_PREFIX}
+
+        export GOOGLE_RAW_DRIVE_ID=0AHytT_wAsk1oUk9PVA
+        export SERVICE_ACCOUNT_USER=acesso-escrita@monitor-rosa.iam.gserviceaccount.com
+
+        echo "running script"
+        export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
+        export SUS_FILE_TYPE=${{ inputs.sus_file_type }}
+        export MAX_FILES=${{ inputs.max_files }}          
+        export MAX_TIME=${{ inputs.max_time }}
+        python3 ./sus-kpis-analysis/sia/etls/update-datasus-bronze-layer-google-drive.py
+      shell: bash
+    - run: echo "🍏 This job's status is ${{ job.status }}." 
+      shell: bash
+    - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
