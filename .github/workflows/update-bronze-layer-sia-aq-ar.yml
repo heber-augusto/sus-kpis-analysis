@@ -13,6 +13,14 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Executar Minha Ação Python
+      uses: ./.github/actions/prepare-bronze-layer
+      with:
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
+        google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
+        service_account_user: ${{ secrets.SERVICE_ACCOUNT_USER }}
+
+    - name: Updating SIA-AQ delta Table
       uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'SIA'
@@ -21,15 +29,15 @@ jobs:
         max_files: '1000'
         max_time: '9000'
         google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
-        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
-        service_account_user: ${{ secrets.SERVICE_ACCOUNT_USER }}
 
-    - name: Executar Minha Ação Python
+
+    - name: Updating SIA-AR delta Table
       uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: 'SIA'
         sus_file_type: 'AR'
-        gcp_credentials: ${{ secrets.GCP_CREDENTIALS }}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
         max_time: '9000'
+        google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
         
