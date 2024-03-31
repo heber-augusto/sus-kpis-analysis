@@ -41,7 +41,7 @@ runs:
         export DATALAKE_PREFIX=${REPO_ROOT_FOLDER}/datalake
         echo $REPO_ROOT_FOLDER
         echo $DATALAKE_PREFIX        
-        export SPARK_HOME=./spark-3.4.2-bin-hadoop3        
+        export SPARK_HOME=./sus-kpis-analysis/spark-3.4.2-bin-hadoop3        
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}        
         export SUS_FILE_GROUP=${{ inputs.sus_file_group }}
         export SUS_FILE_TYPE=${{ inputs.sus_file_type }}
