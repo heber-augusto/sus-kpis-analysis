@@ -42,9 +42,10 @@ runs:
         echo $REPO_ROOT_FOLDER
         echo $DATALAKE_PREFIX        
 
+        echo "spark setup"
         export PYTHONHASHSEED=1234
         export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-        export SPARK_HOME=./spark-3.4.2-bin-hadoop3
+        export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.2-bin-hadoop3
         export SPARK_VERSION=3.4.2
 
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}        
