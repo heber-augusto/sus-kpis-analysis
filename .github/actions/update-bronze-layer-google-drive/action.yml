@@ -30,6 +30,7 @@ runs:
       run: |
         ls ${{ github.workspace }}
         ls /home/runner/work/sus-kpis-analysis
+        ls /home/runner/work/sus-kpis-analysis/datalake/monitor-rosa-bronze
       shell: bash      
     - name: 'google-auth'
       uses: 'google-github-actions/auth@v1'
