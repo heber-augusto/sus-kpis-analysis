@@ -93,9 +93,9 @@ if __name__ == "__main__":
         done_files = get_gd_pending_files(
             auth_json_path = json_filename,
             team_drive_id = team_drive_id,
-            file_type = file_type,
+            file_type = 'DO' if file_type == 'DORES' else file_type,
             checkpoint_file_dict = checkpoint_file_dict,
-            max_files = max_files)
+            max_files = 100)
     
         if (len(done_files) == 0):
             stop_process = True
