@@ -151,7 +151,7 @@ def get_gd_pending_files(auth_json_path, team_drive_id, file_type, checkpoint_fi
     done_files = list_gd_files(
         service = service,
         team_drive_id = team_drive_id,
-        file_type = file_prefix,
+        file_prefix = file_prefix,
         checkpoint_file_dict = checkpoint_file_dict,
         max_files = max_files
         )
