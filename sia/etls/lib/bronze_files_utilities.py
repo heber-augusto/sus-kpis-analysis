@@ -91,7 +91,7 @@ def autenticar_servico(json_caminho, escopos):
 def list_gd_files(
     service,
     team_drive_id,
-    file_type,
+    file_prefix,
     max_files = 100,
     checkpoint_file_dict = None
     ):
@@ -110,7 +110,7 @@ def list_gd_files(
       response = (
           service.files()
           .list(
-              q=f"name contains '{file_type}' and mimeType != 'application/vnd.google-apps.folder' and name contains '.done' and trashed = false {date_filter}",
+              q=f"name contains '{file_prefix}' and mimeType != 'application/vnd.google-apps.folder' and name contains '.done' and trashed = false {date_filter}",
               spaces="drive",
               pageToken=page_token,
               fields="nextPageToken, files(id, name, modifiedTime, createdTime, parents)",
@@ -144,14 +144,14 @@ def list_gd_files(
 
 
 
-def get_gd_pending_files(auth_json_path, team_drive_id, file_type, checkpoint_file_dict, max_files):
+def get_gd_pending_files(auth_json_path, team_drive_id, file_type, checkpoint_file_dict, max_files, file_prefix):
     escopos = ['https://www.googleapis.com/auth/drive.readonly']
     service = autenticar_servico(auth_json_path, escopos)
     
     done_files = list_gd_files(
         service = service,
         team_drive_id = team_drive_id,
-        file_type = file_type,
+        file_type = file_prefix,
         checkpoint_file_dict = checkpoint_file_dict,
         max_files = max_files
         )
