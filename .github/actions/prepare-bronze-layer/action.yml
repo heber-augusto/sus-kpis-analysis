@@ -61,15 +61,14 @@ runs:
         
         sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh $REPO_ROOT_FOLDER
 
+        echo "installing google-drive-ocamlfuse"
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
         
         echo "initializing env variables"
         export GOOGLE_RAW_DRIVE_ID=${{ inputs.google_raw_drive_id }}
         export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
         export SERVICE_ACCOUNT_USER=${{ inputs.service_account_user }}
         export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
-        
-        echo "installing google-drive-ocamlfuse"
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
         
         mkdir ${DATALAKE_PREFIX}/gdfuse
         chmod o+w ${DATALAKE_PREFIX}/gdfuse/.
