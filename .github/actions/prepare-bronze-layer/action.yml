@@ -46,7 +46,7 @@ runs:
         pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
 
         echo "creating dalatake folder"
-        export REPO_ROOT_FOLDER=/home/runner/work/sus-kpis-analysis
+        export REPO_ROOT_FOLDER=${{ github.workspace }}
         export DATALAKE_PREFIX=${REPO_ROOT_FOLDER}/datalake
         echo $REPO_ROOT_FOLDER
         echo $DATALAKE_PREFIX
