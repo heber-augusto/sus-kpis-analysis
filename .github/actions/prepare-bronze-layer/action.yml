@@ -70,11 +70,16 @@ runs:
         
         echo "installing google-drive-ocamlfuse"
         sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
+        
+        mkdir ${DATALAKE_PREFIX}/gdfuse
+        chmod o+w ${DATALAKE_PREFIX}/gdfuse/.
+
         echo "mounting raw drive"
         chmod +x ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh 
         ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_RAW_DRIVE_ID 'monitor-rosa-raw' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
         echo "mounting bronze drive"
         ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v2.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
+        ls ${DATALAKE_PREFIX}
       shell: bash
     - run: echo "🍏 This job's status is ${{ job.status }}." 
       shell: bash
