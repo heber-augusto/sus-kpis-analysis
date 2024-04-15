@@ -43,7 +43,7 @@ runs:
         echo "enviroment setup"
         cd ..
 
-        pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
+        # pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
 
         echo "creating dalatake folder"
         export REPO_ROOT_FOLDER=${{ github.workspace }}
@@ -59,7 +59,7 @@ runs:
         export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.2-bin-hadoop3
         export SPARK_VERSION=3.4.2
         
-        sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh $REPO_ROOT_FOLDER
+        # sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh $REPO_ROOT_FOLDER
 
         echo "installing google-drive-ocamlfuse"
         sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
