@@ -54,7 +54,7 @@ runs:
         export SUS_FILE_TYPE=${{ inputs.sus_file_type }}
         export MAX_FILES=${{ inputs.max_files }}          
         export MAX_TIME=${{ inputs.max_time }}
-        python3 $REPO_ROOT_FOLDER/sus-kpis-analysis/sia/etls/update-datasus-bronze-layer-google-drive.py
+        python3 $REPO_ROOT_FOLDER/sia/etls/update-datasus-bronze-layer-google-drive.py
       shell: bash
     - run: echo "🍏 This job's status is ${{ job.status }}." 
       shell: bash
