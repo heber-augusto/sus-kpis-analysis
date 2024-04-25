@@ -34,5 +34,5 @@ jobs:
         sus_file_type: ${{ github.event.inputs.sus_file_type}}
         gd_credentials: ${{ secrets.GD_CREDENTIALS }}
         max_files: '1000'
-        max_time: '9000'
+        max_time: '18000'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
