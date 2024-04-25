@@ -1,5 +1,5 @@
-name: Update bronze layer
-run-name: ${{ github.actor }} is updating analysis datasets 🚀
+name: Update bronze layer ${{ github.event.inputs.sus_file_group}}-${{ github.event.inputs.sus_file_type}}
+run-name: ${{ github.actor }} is updating analysis datasets ${{ github.event.inputs.sus_file_group}} - ${{ github.event.inputs.sus_file_type}}🚀
 on: 
   workflow_dispatch:
     inputs:
@@ -10,47 +10,29 @@ on:
       sus_file_type:
         description: 'SUS File Type'
         required: true
-        default: 'PA'        
-
-    
+        default: 'PA' 
 jobs:
-  Update-Bronze-Layer:
+  update-bronze-layer:
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "🎉 The job was triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - name: 'google-auth'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: '${{ secrets.gcp_credentials }}'
-          
-      - name: Download and prepare Spark
-        run: |
-          echo "enviroment setup"        
+    - name: Checkout do código
+      uses: actions/checkout@v2
 
-          pip3 install -r ./sia/etls/requirements.txt          
+    - name: Install spark and mount team google drive
+      uses: ./.github/actions/prepare-bronze-layer
+      with:
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
+        google_bronze_drive_id: ${{ secrets.GOOGLE_BRONZE_DRIVE_ID }}
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
+        service_account_user: ${{ secrets.SERVICE_ACCOUNT_USER }}
 
-          export PYTHONHASHSEED=1234
-          export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-          export SPARK_HOME=./spark-3.4.2-bin-hadoop3
-          export SPARK_VERSION=3.4.2
-          export MAX_FILES=5000          
-          export MAX_TIME=18000
-          
-          sudo sh ./sia/etls/bin/setup_spark_env.sh './'
-
-          echo "running script"
-          export SUS_FILE_GROUP=${{ github.event.inputs.sus_file_group}}
-          export SUS_FILE_TYPE=${{ github.event.inputs.sus_file_type}}          
-          python3 ./sia/etls/update-datasus-bronze-layer.py
-
-      - run: echo "🍏 This job's status is ${{ job.status }}." 
-      - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
+    - name: Updating SIA-AQ delta Table
+      uses: ./.github/actions/update-bronze-layer-google-drive
+      with:
+        sus_file_group: ${{ github.event.inputs.sus_file_group}}
+        sus_file_type: ${{ github.event.inputs.sus_file_type}}
+        gd_credentials: ${{ secrets.GD_CREDENTIALS }}
+        max_files: '1000'
+        max_time: '9000'
+        google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
