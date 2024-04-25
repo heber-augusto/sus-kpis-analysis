@@ -1,4 +1,4 @@
-name: Update bronze layer ${{ github.event.inputs.sus_file_group}}-${{ github.event.inputs.sus_file_type}}
+name: Update bronze layer
 run-name: ${{ github.actor }} is updating analysis datasets ${{ github.event.inputs.sus_file_group}} - ${{ github.event.inputs.sus_file_type}}🚀
 on: 
   workflow_dispatch:
