@@ -27,7 +27,7 @@ jobs:
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
         service_account_user: ${{ secrets.SERVICE_ACCOUNT_USER }}
 
-    - name: Updating SIA-AQ delta Table
+    - name: Updating delta table 
       uses: ./.github/actions/update-bronze-layer-google-drive
       with:
         sus_file_group: ${{ github.event.inputs.sus_file_group}}
