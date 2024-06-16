@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is  Update Bronze Layer SIA-PA 🚀
 on: 
   workflow_dispatch:
   schedule:
-    - cron:  '0 0 * * *'
+    - cron:  '0 0 * * 2'
 jobs:
   update-bronze-layer:
     runs-on: ubuntu-latest
