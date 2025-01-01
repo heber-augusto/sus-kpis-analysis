@@ -168,7 +168,10 @@ def get_gd_pending_files(auth_json_path, team_drive_id, file_type, checkpoint_fi
         while done is False:
           status, done = downloader.next_chunk()
           # print(f"Download {int(status.progress() * 100)}%.")
-        file_dict = json.loads(file.getvalue())
+        try:
+            file_dict = json.loads(file.getvalue())
+        except:
+            raise Exception(f'Error reading file {done_file}')
         if file_dict['file_group'] == file_type:     
             file_dict['done_file_name'] = done_file['name']
             file_dict['createdTime'] = done_file['createdTime']
