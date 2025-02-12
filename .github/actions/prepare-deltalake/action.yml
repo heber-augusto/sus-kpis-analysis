@@ -1,0 +1,95 @@
+name: 'Update Bronze Layer Google Drive'
+description: 'Update Bronze Layer using SUS file type and group'
+author: 'Heber A. Scachetti'
+inputs:
+  gd_credentials:
+    description: 'Credenciais GCP'
+    required: true
+  google_bronze_drive_id:
+    description: 'google team driver bronze id'
+    required: true
+  google_silver_drive_id:
+    description: 'google team driver bronze id'
+    required: true
+  google_gold_drive_id:
+    description: 'google team driver bronze id'
+    required: true
+    
+  service_account_user:
+    description: 'google service account user'
+    required: true    
+    
+runs:
+  using: 'composite'
+  steps:
+    - run: echo "🎉 The job was triggered by a ${{ github.event_name }} event."
+      shell: bash
+    - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      shell: bash
+    - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      shell: bash
+    - name: Check out repository code
+      uses: actions/checkout@v3
+    - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      shell: bash
+    - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      shell: bash
+    - name: List files in the repository
+      run: |
+        ls ${{ github.workspace }}
+      shell: bash
+    - name: 'google-auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: ${{ inputs.gd_credentials }}
+    - name: Download and prepare Spark
+      run: |
+        echo "enviroment setup"
+        cd ..
+
+        pip3 install -r ./sus-kpis-analysis/sia/etls/requirements.txt          
+
+        echo "creating dalatake folder"
+        export REPO_ROOT_FOLDER=${{ github.workspace }}
+        export DATALAKE_PREFIX=${REPO_ROOT_FOLDER}/datalake
+        echo $REPO_ROOT_FOLDER
+        echo $DATALAKE_PREFIX
+        mkdir ${DATALAKE_PREFIX}
+        chmod o+w ${DATALAKE_PREFIX}/.
+        
+        echo "spark setup"
+        export PYTHONHASHSEED=1234
+        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+        export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.4-bin-hadoop3
+        export SPARK_VERSION=3.4.4
+        
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/setup_spark_env.sh $REPO_ROOT_FOLDER
+
+        echo "installing google-drive-ocamlfuse"
+        sudo sh ./sus-kpis-analysis/sia/etls/bin/install-google-drive-ocamlfuse.sh
+        
+        echo "initializing env variables"
+        export GOOGLE_BRONZE_DRIVE_ID=${{ inputs.google_bronze_drive_id }}
+        export GOOGLE_SILVER_DRIVE_ID=${{ inputs.google_silver_drive_id }}
+        export GOOGLE_GOLD_DRIVE_ID=${{ inputs.google_gold_drive_id }}
+        export SERVICE_ACCOUNT_USER=${{ inputs.service_account_user }}
+        export XDG_CONFIG_HOME=${DATALAKE_PREFIX}
+        
+        mkdir ${DATALAKE_PREFIX}/gdfuse
+        chmod o+w ${DATALAKE_PREFIX}/gdfuse/.
+
+
+        chmod +x ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v3.sh 
+        echo "mounting bronze drive"
+        ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v3.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_BRONZE_DRIVE_ID 'monitor-rosa-bronze' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
+        echo "mounting silver drive"
+        ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v3.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_SILVER_DRIVE_ID 'monitor-rosa-silver' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
+        echo "mounting gold drive"
+        ./sus-kpis-analysis/sia/etls/bin/mount_google_drive_v3.sh $DATALAKE_PREFIX $SERVICE_ACCOUNT_USER $GOOGLE_GOLD_DRIVE_ID 'monitor-rosa-gold' $GOOGLE_APPLICATION_CREDENTIALS $REPO_ROOT_FOLDER
+ 
+        
+        ls ${DATALAKE_PREFIX}/gdfuse
+      shell: bash
+    - run: echo "🍏 This job's status is ${{ job.status }}." 
+      shell: bash
+    #- uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
