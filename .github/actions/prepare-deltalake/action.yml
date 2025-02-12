@@ -1,5 +1,5 @@
-name: 'Update Bronze Layer Google Drive'
-description: 'Update Bronze Layer using SUS file type and group'
+name: 'prepare-deltalake'
+description: 'Prepare Env and Deltalake Layers using Google Drive Folders'
 author: 'Heber A. Scachetti'
 inputs:
   gd_credentials:
