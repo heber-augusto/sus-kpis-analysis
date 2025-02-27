@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} is  Create Cancer MAMA DB 🚀
 on: 
   workflow_dispatch:
 jobs:
-  prepare-deltalake-layers:
+  prepare-deltalake-and-create-cancer-mama-db:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,36 +19,31 @@ jobs:
         google_gold_drive_id: ${{ secrets.GOOGLE_GOLD_DRIVE_ID }}
         service_account_user: ${{ secrets.SERVICE_ACCOUNT_USER }}
 
-  call-create-mama-cancer:
-    runs-on: ubuntu-latest
-    if: ${{ always() }}
-    needs: prepare-deltalake-layers    
-    steps:
-      - name: Run ETL to Create Mama Cancer        
-        run: |
-          echo "running script"
-          export REPO_ROOT_FOLDER=${{ github.workspace }}
-          export DATALAKE_PREFIX=${REPO_ROOT_FOLDER}/datalake
-          echo $REPO_ROOT_FOLDER
-          echo $DATALAKE_PREFIX        
-  
-          echo "spark setup"
-          export PYTHONHASHSEED=1234
-          export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-          export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.4-bin-hadoop3
-          export SPARK_VERSION=3.4.4
-          ls $REPO_ROOT_FOLDER
-          ls $REPO_ROOT_FOLDER/etls
-          ls $REPO_ROOT_FOLDER/etls/silver-layer
-          
-          python3 $REPO_ROOT_FOLDER/etls/silver-layer/cancer-mama-db.py
+    - name: Run ETL to Create Mama Cancer        
+      run: |
+        echo "running script"
+        export REPO_ROOT_FOLDER=${{ github.workspace }}
+        export DATALAKE_PREFIX=${REPO_ROOT_FOLDER}/datalake
+        echo $REPO_ROOT_FOLDER
+        echo $DATALAKE_PREFIX        
+
+        echo "spark setup"
+        export PYTHONHASHSEED=1234
+        export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+        export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.4-bin-hadoop3
+        export SPARK_VERSION=3.4.4
+        ls $REPO_ROOT_FOLDER
+        ls $REPO_ROOT_FOLDER/etls
+        ls $REPO_ROOT_FOLDER/etls/silver-layer
+        
+        python3 $REPO_ROOT_FOLDER/etls/silver-layer/cancer-mama-db.py
 
 
   
   keepalive-job:
     name: Keepalive Workflow
     if: ${{ always() }}
-    needs: call-create-mama-cancer
+    needs: prepare-deltalake-and-create-cancer-mama-db
     runs-on: ubuntu-latest
     permissions:
       contents: write
