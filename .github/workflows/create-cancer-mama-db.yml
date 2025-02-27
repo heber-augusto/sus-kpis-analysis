@@ -35,7 +35,7 @@ jobs:
         ls $REPO_ROOT_FOLDER
         ls $REPO_ROOT_FOLDER/etls
         ls $REPO_ROOT_FOLDER/etls/silver-layer
-        
+        cd $REPO_ROOT_FOLDER/sia/etls
         python3 $REPO_ROOT_FOLDER/etls/silver-layer/cancer-mama-db.py
 
 
