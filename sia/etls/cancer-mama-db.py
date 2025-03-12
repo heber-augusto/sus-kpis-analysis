@@ -19,6 +19,11 @@ datalake_prefix = os.getenv('DATALAKE_PREFIX')
 
 databases_path = os.path.join(datalake_prefix, "monitor-rosa-bronze/databases")
 
+spark = create_fs_spark_session(
+    warehouse_dir=databases_path,
+    spark_path=spark_home
+)
+
 zone_names = ['monitor-rosa-bronze','monitor-rosa-silver','monitor-rosa-gold']
 
 zone_paths = [os.path.join(datalake_prefix, "{zone_name}/databases") for zone_name in zone_names]
