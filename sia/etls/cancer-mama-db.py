@@ -67,7 +67,7 @@ def run_sql_query(sql_query):
 # 1.9 - Cria banco de dados silver
 # Define variaveis para criar banco de dados cancer_mama, na camada Gold
 destination_database_name = 'cancer_mama_silver'
-databases_path = os.path.join(datalake_prefix, "monitor-rosa-silver/databases"
+databases_path = os.path.join(datalake_prefix, "monitor-rosa-silver/databases")
 db_creator_silver = DeltaLakeDatabaseFsCreator(
     spark_session = spark, 
     database_location = databases_path, 
