@@ -100,7 +100,7 @@ proc_id_filter = f"""({','.join([f"'{proc_id}'" for proc_id in proc_id_dict.keys
 sql_query_ar = get_select_all_query(
     table_name='sia_bronze.ar',
     where_clause=f"""
-        WHERE AP_CIDPRI IN {cid_filter} AND _filename like 'ARTO2501.parquet.gzip'
+        WHERE AP_CIDPRI IN {cid_filter} AND _filename like 'ARPR1810.parquet.gzip'
         """
 )
 cancer_ar_filtered = run_sql_query(sql_query_ar)
