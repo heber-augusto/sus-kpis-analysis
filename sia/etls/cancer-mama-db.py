@@ -177,7 +177,7 @@ df_union\
   .write\
   .format("delta")\
   .mode("overwrite")\
-  .saveAsTable(f"{destination_database_name}.procedimentos")
+  .saveAsTable(f"{destination_database_name_gold}.procedimentos")
 
 # 4.3 - Consolidando os dados por paciente
 res_consolidado = spark.sql("""
@@ -219,8 +219,8 @@ procedimentos_e_pacientes = spark.sql(f"""
       p.primeiro_municipio,
       p.ultimo_municipio,
       p.indicacao_obito
-  FROM {destination_database_name}.procedimentos AS c
-  FULL OUTER JOIN {destination_database_name}.pacientes AS p
+  FROM {destination_database_name_gold}.procedimentos AS c
+  FULL OUTER JOIN {destination_database_name_gold}.pacientes AS p
   ON c.paciente = p.paciente
 """)
 
@@ -258,7 +258,7 @@ dados_estad_municipio_mensal_df = spark.sql(f"""
         SUM(DISTINCT(indicacao_obito)) AS obito_futuro,
         COUNT(1) AS numero_procedimentos
     FROM
-        (SELECT * FROM {destination_database_name}.procedimentos_e_pacientes ORDER BY data)
+        (SELECT * FROM {destination_database_name_gold}.procedimentos_e_pacientes ORDER BY data)
     GROUP BY data, municipio, primeiro_estadiamento
 """)
 dados_estad_municipio_mensal_df.createOrReplaceTempView("dados_municipios_mensal")
