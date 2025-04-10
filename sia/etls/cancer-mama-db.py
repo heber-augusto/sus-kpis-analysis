@@ -299,8 +299,8 @@ dados_estad_mensal = spark.sql(f"""
         SELECT
             cadastro_cidades.nome_uf AS estado,
             mm.*
-        FROM {destination_database_name_gold}.dados_municipios_mensal mm
-        LEFT JOIN {destination_database_name_gold}.cadastro_municipios AS cadastro_cidades
+        FROM dados_municipios_mensal mm
+        LEFT JOIN ibge_silver.cadastro_municipios AS cadastro_cidades
         ON int(mm.municipio) = int(cadastro_cidades.id / 10)
         ORDER BY data
     ) AS dados_estado
