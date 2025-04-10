@@ -5,7 +5,7 @@ import json
 
 from pyspark.sql.functions import input_file_name
 from lib.catalog_loader import DeltaLakeDatabaseFsCreator, load_entire_catalog_fs_v2
-from lib.table_utilities import vacuum_table
+from lib.table_utilities import vacuum_tables_from_database
 from lib.fs_spark_session import create_fs_spark_session
 from lib.bronze_files_utilities import get_gd_pending_files
 from lib.delta_table_creators import ParquetToDelta
