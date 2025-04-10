@@ -280,7 +280,7 @@ dados_estad_municipio_mensal\
     .write\
     .format("delta")\
     .mode("overwrite")\
-    .saveAsTable(f"{destination_database_name_gold}.dados_estad_municipio_mensal")
+    .saveAsTable(f"{destination_database_name_gold}.dados_municipios_mensal")
 
 # 5.4 - Agregação por estado
 dados_estad_mensal = spark.sql(f"""
@@ -299,7 +299,7 @@ dados_estad_mensal = spark.sql(f"""
         SELECT
             cadastro_cidades.nome_uf AS estado,
             mm.*
-        FROM dados_municipios_mensal mm
+        FROM {destination_database_name_gold}.dados_municipios_mensal mm
         LEFT JOIN ibge_silver.cadastro_municipios AS cadastro_cidades
         ON int(mm.municipio) = int(cadastro_cidades.id / 10)
         ORDER BY data
