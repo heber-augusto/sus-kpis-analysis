@@ -239,7 +239,7 @@ diagnosticos_por_estadiamento_municipio_df = spark.sql(f"""
         data_primeiro_estadiamento AS data,
         primeiro_municipio AS municipio,
         COUNT(DISTINCT(paciente)) AS numero_diagnosticos
-    FROM {destination_database_name}.pacientes
+    FROM {destination_database_name_gold}.pacientes
     WHERE primeiro_estadiamento != ''
     GROUP BY primeiro_estadiamento, data_primeiro_estadiamento, primeiro_municipio
 """)
