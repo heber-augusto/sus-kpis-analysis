@@ -65,7 +65,7 @@ def run_sql_query(sql_query):
     return spark.sql(sql_query)
 
 # 1.9 - Cria banco de dados silver
-# Define variaveis para criar banco de dados cancer_mama, na camada Gold
+# Define variaveis para criar banco de dados cancer_mama, na camada Silver
 destination_database_name = 'cancer_mama_silver'
 databases_path = os.path.join(datalake_prefix, "monitor-rosa-silver/databases")
 db_creator_silver = DeltaLakeDatabaseFsCreator(
@@ -73,6 +73,16 @@ db_creator_silver = DeltaLakeDatabaseFsCreator(
     database_location = databases_path, 
     database_name = destination_database_name)
 db_creator_silver.create_database()
+
+# 1.10 - Cria banco de dados gold
+# Define variaveis para criar banco de dados cancer_mama, na camada Gold
+destination_database_name_gold = 'cancer_mama'
+databases_path = os.path.join(datalake_prefix, "monitor-rosa-gold/databases")
+db_creator_gold = DeltaLakeDatabaseFsCreator(
+    spark_session = spark, 
+    database_location = databases_path, 
+    database_name = destination_database_name_gold)
+db_creator_gold.create_database()
 
 
 # Filtro pelo CID
@@ -100,7 +110,7 @@ proc_id_filter = f"""({','.join([f"'{proc_id}'" for proc_id in proc_id_dict.keys
 sql_query_ar = get_select_all_query(
     table_name='sia_bronze.ar',
     where_clause=f"""
-        WHERE AP_CIDPRI IN {cid_filter} 
+        WHERE AP_CIDPRI IN {cid_filter} AND _filename like '%ARPR18%'
         """ # AND _filename like '%ARPR18%'
 )
 cancer_ar_filtered = run_sql_query(sql_query_ar)
@@ -111,4 +121,210 @@ cancer_ar_filtered\
       .format("delta")\
       .mode("overwrite")\
       .saveAsTable(f"{destination_database_name}.ar_filtered")
+
+# 3.3 Carrega tabela SIA.AQ filtrando dados de câncer de mama e procedimentos de interesse
+sql_query_aq = get_select_all_query(
+    table_name='sia_bronze.aq',
+    where_clause=f"""
+        WHERE AP_CIDPRI IN {cid_filter} AND _filename like '%AQPR18%'
+    """
+)
+
+cancer_aq_filtered = run_sql_query(sql_query_aq)
+
+cancer_aq_filtered\
+      .repartition(1)\
+      .write\
+      .format("delta")\
+      .mode("overwrite")\
+      .saveAsTable(f"{destination_database_name}.aq_filtered")
+
+
+# IV - Processamento dos Dados dos Pacientes e Procedimentos
+# 4.1 - Cria dados consolidados de pacientes e procedimentos (quimio e radioterapia)
+# Radioterapia
+cancer_ar_res = spark.sql(f"""
+SELECT
+    AP_CMP as data,
+    AP_CNSPCN as paciente,
+    AR_ESTADI as estadiamento,
+    DOUBLE(AP_VL_AP)  as custo,
+    INT(AP_OBITO) as obito,
+    AP_MUNPCN as municipio
+FROM {destination_database_name}.ar_filtered
+""")
+
+# quimioterapia
+cancer_aq_res = spark.sql(f"""
+SELECT
+    AP_CMP as data,
+    AP_CNSPCN as paciente,
+    AQ_ESTADI as estadiamento,
+    DOUBLE(AP_VL_AP)  as custo,
+    INT(AP_OBITO) as obito,
+    AP_MUNPCN as municipio
+FROM {destination_database_name}.aq_filtered
+""")
+
+# 4.2 - Unifica os dados de radio e quimio consolidados
+
+df_union = cancer_aq_res.union(cancer_ar_res)
+
+df_union.createOrReplaceTempView("cancer_ordered")
+
+df_union\
+  .repartition(1)\
+  .write\
+  .format("delta")\
+  .mode("overwrite")\
+  .saveAsTable(f"{destination_database_name}.procedimentos")
+
+# 4.3 - Consolidando os dados por paciente
+res_consolidado = spark.sql("""
+SELECT
+    paciente,
+    FIRST(data) as data_primeiro_estadiamento,
+    LAST(data) as data_ultimo_estadiamento,
+    COUNT(1) as numero_procedimentos,
+    FIRST(estadiamento) as primeiro_estadiamento,
+    LAST(estadiamento) as ultimo_estadiamento,
+    MAX (estadiamento) as maior_estadiamento,
+    MIN (estadiamento) as menor_estadiamento,
+    SUM(custo) as custo_total,
+    MAX(obito) as indicacao_obito,
+    FIRST(municipio) as primeiro_municipio,
+    LAST(municipio) as ultimo_municipio
+FROM (SELECT * FROM cancer_ordered ORDER BY paciente, data)
+GROUP BY paciente
+""")
+
+res_consolidado\
+  .repartition(1)\
+  .write\
+  .format("delta")\
+  .mode("overwrite")\
+  .saveAsTable(f"{destination_database_name_gold}.pacientes")
+
+
+# 4.4 - Procedimentos e Pacientes
+procedimentos_e_pacientes = spark.sql(f"""
+  SELECT
+      c.*,
+      p.data_primeiro_estadiamento,
+      p.data_ultimo_estadiamento,
+      p.primeiro_estadiamento,
+      p.maior_estadiamento,
+      p.ultimo_estadiamento,
+      p.custo_total,
+      p.primeiro_municipio,
+      p.ultimo_municipio,
+      p.indicacao_obito
+  FROM {destination_database_name}.procedimentos AS c
+  FULL OUTER JOIN {destination_database_name}.pacientes AS p
+  ON c.paciente = p.paciente
+""")
+
+procedimentos_e_pacientes\
+  .repartition(1)\
+  .write\
+  .format("delta")\
+  .mode("overwrite")\
+  .saveAsTable(f"{destination_database_name_gold}.procedimentos_e_pacientes")
+
+# V - Agregação por Município e Estado
+# 5.1 - Consolida dados por municipio
+diagnosticos_por_estadiamento_municipio_df = spark.sql(f"""
+    SELECT
+        primeiro_estadiamento,
+        data_primeiro_estadiamento AS data,
+        primeiro_municipio AS municipio,
+        COUNT(DISTINCT(paciente)) AS numero_diagnosticos
+    FROM {destination_database_name}.pacientes
+    WHERE primeiro_estadiamento != ''
+    GROUP BY primeiro_estadiamento, data_primeiro_estadiamento, primeiro_municipio
+""")
+
+diagnosticos_por_estadiamento_municipio_df.createOrReplaceTempView("diagnosticos_por_estadiamento_municipio")
+
+# 5.2 - Consolida dados mensais por municipio
+dados_estad_municipio_mensal_df = spark.sql(f"""
+    SELECT
+        data,
+        municipio,
+        primeiro_estadiamento,
+        SUM(custo) AS custo_estadiamento,
+        COUNT(DISTINCT(paciente)) AS numero_pacientes,
+        SUM(DISTINCT(obito)) AS obitos,
+        SUM(DISTINCT(indicacao_obito)) AS obito_futuro,
+        COUNT(1) AS numero_procedimentos
+    FROM
+        (SELECT * FROM {destination_database_name}.procedimentos_e_pacientes ORDER BY data)
+    GROUP BY data, municipio, primeiro_estadiamento
+""")
+dados_estad_municipio_mensal_df.createOrReplaceTempView("dados_municipios_mensal")
+
+# 5.3 - Consolida dados por municipio mensal
+dados_estad_municipio_mensal = spark.sql("""
+    SELECT
+        mm.*,
+        COALESCE(em.numero_diagnosticos, 0) AS numero_diagnosticos
+    FROM dados_municipios_mensal mm
+    FULL OUTER JOIN diagnosticos_por_estadiamento_municipio em
+    ON mm.data = em.data
+    AND mm.municipio = em.municipio
+    AND mm.primeiro_estadiamento = em.primeiro_estadiamento
+""")
+
+dados_estad_municipio_mensal\
+    .repartition(1)\
+    .write\
+    .format("delta")\
+    .mode("overwrite")\
+    .saveAsTable(f"{destination_database_name_gold}.dados_estad_municipio_mensal")
+
+# 5.4 - Agregação por estado
+dados_estad_mensal = spark.sql(f"""
+    SELECT
+        estado,
+        data,
+        primeiro_estadiamento,
+        SUM(custo_estadiamento) AS custo_estadiamento,
+        SUM(numero_pacientes) AS numero_pacientes,
+        COUNT(DISTINCT(municipio)) AS numero_municipios,
+        SUM(obitos) AS obitos,
+        SUM(obito_futuro) AS obitos_futuros,
+        SUM(numero_procedimentos) AS numero_procedimentos,
+        SUM(numero_diagnosticos) AS numero_diagnosticos
+    FROM (
+        SELECT
+            cadastro_cidades.nome_uf AS estado,
+            mm.*
+        FROM cancer_data.dados_municipios_mensal mm
+        LEFT JOIN cancer_data.cadastro_municipios AS cadastro_cidades
+        ON int(mm.municipio) = int(cadastro_cidades.id / 10)
+        ORDER BY data
+    ) AS dados_estado
+    GROUP BY estado, data, primeiro_estadiamento
+""")
+
+dados_estad_mensal\
+    .repartition(1)\
+    .write\
+    .format("delta")\
+    .mode("overwrite")\
+    .saveAsTable(f"{destination_database_name_gold}.dados_estados_mensal")
+
+
+vacuum_tables_from_database(
+        spark_session = spark,
+        database_name = destination_database_name,
+        retention_hours = 24
+    )
+
+vacuum_tables_from_database(
+        spark_session = spark,
+        database_name = destination_database_name_gold,
+        retention_hours = 24
+    )
+
 
