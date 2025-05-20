@@ -1,7 +1,7 @@
 findspark 
-pyspark 
+pyspark==3.5.5 
 imagehash
-delta-spark==2.4.0
+delta-spark==3.3.1
 google-cloud-storage
 pytz
 psutil
