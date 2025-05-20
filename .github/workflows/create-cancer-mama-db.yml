@@ -30,8 +30,8 @@ jobs:
         echo "spark setup"
         export PYTHONHASHSEED=1234
         export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-        export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.4.4-bin-hadoop3
-        export SPARK_VERSION=3.4.4
+        export SPARK_HOME=$REPO_ROOT_FOLDER/spark-3.5.5-bin-hadoop3
+        export SPARK_VERSION=3.5.5
         python3 $REPO_ROOT_FOLDER/sia/etls/cancer-mama-db.py
 
 
