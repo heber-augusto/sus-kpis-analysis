@@ -41,4 +41,4 @@ jobs:
           python3 ./sia/etls/create-base-kpis.py
 
       - run: echo "🍏 This job's status is ${{ job.status }}." 
-      - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
+      # - uses: gautamkrishnar/keepalive-workflow@v1 # using the workflow with default settings
