@@ -111,6 +111,7 @@ sql_query_ar = get_select_all_query(
     table_name='sia_bronze.ar',
     where_clause=f"""
         WHERE AP_CIDPRI IN {cid_filter}
+        AND len(AP_CNSPCN) > 0
         """ # AND _filename like '%ARPR18%'
 )
 cancer_ar_filtered = run_sql_query(sql_query_ar)
@@ -127,6 +128,7 @@ sql_query_aq = get_select_all_query(
     table_name='sia_bronze.aq',
     where_clause=f"""
         WHERE AP_CIDPRI IN {cid_filter}
+        AND len(AP_CNSPCN) > 0
     """
 )
 
