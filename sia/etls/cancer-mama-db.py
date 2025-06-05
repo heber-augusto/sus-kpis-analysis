@@ -222,8 +222,9 @@ procedimentos_e_pacientes = spark.sql(f"""
       p.ultimo_municipio,
       p.indicacao_obito
   FROM {destination_database_name_gold}.procedimentos AS c
-  FULL OUTER JOIN {destination_database_name_gold}.pacientes AS p
+  RIGHT JOIN {destination_database_name_gold}.pacientes AS p
   ON c.paciente = p.paciente
+  where c.data is not null
 """)
 
 procedimentos_e_pacientes\
