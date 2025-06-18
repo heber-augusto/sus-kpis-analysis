@@ -7,7 +7,6 @@ from pyspark.sql.functions import input_file_name
 from lib.catalog_loader import DeltaLakeDatabaseFsCreator, load_entire_catalog_fs_v2
 from lib.table_utilities import vacuum_tables_from_database
 from lib.fs_spark_session import create_fs_spark_session
-from lib.bronze_files_utilities import get_gd_pending_files
 from lib.delta_table_creators import ParquetToDelta
 
 from google.cloud import storage
@@ -222,8 +221,9 @@ procedimentos_e_pacientes = spark.sql(f"""
       p.ultimo_municipio,
       p.indicacao_obito
   FROM {destination_database_name_gold}.procedimentos AS c
-  FULL OUTER JOIN {destination_database_name_gold}.pacientes AS p
+  RIGHT JOIN {destination_database_name_gold}.pacientes AS p
   ON c.paciente = p.paciente
+  where c.data is not null
 """)
 
 procedimentos_e_pacientes\
