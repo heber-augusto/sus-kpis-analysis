@@ -70,15 +70,11 @@ jobs:
         max_time: '4200'
         google_raw_drive_id: ${{ secrets.GOOGLE_RAW_DRIVE_ID }}
   
-  keepalive-job:
-    name: Keepalive Workflow
-    if: ${{ always() }}
+  workflow-keepalive:
+    if: github.event_name == 'schedule'
     needs: update-bronze-layer
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      actions: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: gautamkrishnar/keepalive-workflow@v2
-        with:
-          use_api: false
+      - uses: liskin/gh-workflow-keepalive@v1
