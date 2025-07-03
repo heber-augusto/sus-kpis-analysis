@@ -252,7 +252,7 @@ diagnosticos_por_estadiamento_municipio_df.createOrReplaceTempView("diagnosticos
 dados_estad_municipio_mensal_df = spark.sql(f"""
     SELECT
         data,
-        municipio,
+        primeiro_municipio as municipio,
         primeiro_estadiamento,
         SUM(custo) AS custo_estadiamento,
         COUNT(DISTINCT(paciente)) AS numero_pacientes,
@@ -261,7 +261,7 @@ dados_estad_municipio_mensal_df = spark.sql(f"""
         COUNT(1) AS numero_procedimentos
     FROM
         (SELECT * FROM {destination_database_name_gold}.procedimentos_e_pacientes ORDER BY data)
-    GROUP BY data, municipio, primeiro_estadiamento
+    GROUP BY data, primeiro_municipio, primeiro_estadiamento
 """)
 dados_estad_municipio_mensal_df.createOrReplaceTempView("dados_municipios_mensal")
 
