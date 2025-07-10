@@ -143,6 +143,8 @@ cancer_aq_filtered\
 
 # IV - Processamento dos Dados dos Pacientes e Procedimentos
 # 4.1 - Cria dados consolidados de pacientes e procedimentos (quimio e radioterapia)
+# Municipios do DF são todos substituídos por Brasilia pois o cadastro não existe na tabela do IBGE
+
 # Radioterapia
 cancer_ar_res = spark.sql(f"""
 SELECT
@@ -151,7 +153,7 @@ SELECT
     AR_ESTADI as estadiamento,
     DOUBLE(AP_VL_AP)  as custo,
     INT(AP_OBITO) as obito,
-    AP_MUNPCN as municipio
+    (case when int(AP_MUNPCN/10000) = 53 then '530010' else AP_MUNPCN end) as municipio
 FROM {destination_database_name}.ar_filtered
 """)
 
@@ -163,7 +165,7 @@ SELECT
     AQ_ESTADI as estadiamento,
     DOUBLE(AP_VL_AP)  as custo,
     INT(AP_OBITO) as obito,
-    AP_MUNPCN as municipio
+    (case when int(AP_MUNPCN/10000) = 53 then '530010' else AP_MUNPCN end) as municipio
 FROM {destination_database_name}.aq_filtered
 """)
 
