@@ -1,7 +1,9 @@
 name: Create Cancer MAMA DB
 run-name: ${{ github.actor }} is  Create Cancer MAMA DB 🚀
 on: 
-  workflow_dispatch:
+  workflow_dispatch:     
+  schedule:
+    - cron:  '0 16 * * 1'
 jobs:
   prepare-deltalake-and-create-cancer-mama-db:
     runs-on: ubuntu-latest
