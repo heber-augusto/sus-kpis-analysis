@@ -338,7 +338,7 @@ df_cancer_municipios = spark.sql("SELECT * FROM cancer_mama.dados_municipios_men
 df_cancer_municipios_pandas = df_cancer_municipios.toPandas()
 
 # Salva o DataFrame do Pandas em um arquivo CSV
-output_csv_file = "dados_municipios_mensal_new.csv"
+output_csv_file = "dados_municipios_mensal.csv"
 
 output_csv_path = os.path.join(datalake_prefix, "monitor-rosa-gold/shared", output_csv_file)
 
@@ -354,7 +354,7 @@ df_cancer_estado = spark.sql("SELECT * FROM cancer_mama.dados_estados_mensal")
 df_cancer_estado_pandas = df_cancer_estado.toPandas()
 
 # Salva o DataFrame do Pandas em um arquivo CSV
-output_csv_file = "dados_estados_mensal_new.csv"
+output_csv_file = "dados_estados_mensal.csv"
 output_csv_path = os.path.join(datalake_prefix, "monitor-rosa-gold/shared", output_csv_file)
 df_cancer_estado_pandas.to_csv(output_csv_path, index=False)
 
